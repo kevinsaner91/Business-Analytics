@@ -33,11 +33,47 @@ dataset = read_sav("npd.sav")
 
 # Data Preparation
 
-## Check Dimensions
+## Check 
+```{r}
+dim(dataset)
+```
+The dataset contains 247 observations and 57 variables.
+
+```{r}
+names(dataset)
+```
+The names of the variables match the questions of the questionnaire.  
+
+A1 is special: Product
+D3 and D9 use one-hot encoding
+
 
 ## Response
+```{r}
+gross_sample_size <- 592
+# keep only rows that indicated completeness
+dataset <- subset(dataset,!is.na(dataset$COMPLETE))
+100 /gross_sample_size * nrow(dataset)
+
+```
+
+
 
 ## Measurement Levels and Missingness
+
+Check data for missing values.
+
+```{r}
+table(sapply(dataset, is.na))
+
+
+```
+There are 2818 missing values in the data set. The values are distributed as follows among the variables:
+
+```{r}
+data.frame(colSums(is.na(dataset)))
+```
+
 
 ## Missingness of D9IncYes1
 
