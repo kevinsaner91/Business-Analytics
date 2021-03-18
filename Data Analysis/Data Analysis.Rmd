@@ -1,0 +1,64 @@
+---
+title: "Assignment Data Analysis"
+author: "Kevin Saner, Phillip Gachnang, Raphael Denz"
+date: "18 3 2021"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Starting situation
+Description of the dataset.
+
+## To-Do
+Description of the tasks.
+
+## Prerequisites
+```{r, message=FALSE,warning=FALSE}
+library(DescTools) # for CramerV() function
+library(haven) # to read SPSS files
+library(labelled) # to deal with variable and value labels
+library(knitr) # to get the kable() function for nice tables
+library(gplots) # to get the plotmeans() function
+```
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+rm(list = ls()) # clear workspace, use if needed
+dataset = read_sav("npd.sav")
+
+```
+
+# Data Preparation
+
+## Check Dimensions
+
+## Response
+
+## Measurement Levels and Missingness
+
+## Missingness of D9IncYes1
+
+# Analysis
+
+## Proportion of Programme Participation
+
+## Satisfaction with product development process
+
+## Association of incubator participation and satisfaction with the product development process
+
+## Number of R+D personnel
+
+## R+D personnel vs participation
+
+## Including Plots (to be deleted, just an example)
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
