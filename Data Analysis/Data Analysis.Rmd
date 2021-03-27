@@ -33,11 +33,16 @@ dataset = read_sav("npd.sav")
 
 # Data Preparation
 
-## Check 
+## Check the dimension and the variables
 ```{r}
 dim(dataset)
+
+View(dataset)
+
+
 ```
-The dataset contains 247 observations and 57 variables.
+The dataset contains 247 observations/dimensions and 57 variables.
+
 
 ```{r}
 names(dataset)
