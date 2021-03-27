@@ -37,8 +37,6 @@ dataset = read_sav("npd.sav")
 ```{r}
 dim(dataset)
 
-View(dataset)
-
 
 ```
 The dataset contains 247 observations/dimensions and 57 variables.
