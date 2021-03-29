@@ -34,55 +34,138 @@ dataset = read_sav("npd.sav")
 # Data Preparation
 
 ## Check the dimension and the variables
-```{r}
-dim(dataset)
 
+*Check the dimensions of the data set.*
+
+```{r}
+a<- dim(dataset)
+a
 
 ```
-The dataset contains 247 observations/dimensions and 57 variables.
 
+The dataset contains `r a[1]` observations and `r a[2]` variables.
 
 ```{r}
 names(dataset)
 ```
-The names of the variables match the questions of the questionnaire.  
+The names of the variables match the questions of the questionnaire.
 
-A1 is special: Product
-D3 and D9 use one-hot encoding
-
+The variables are not labelled.
 
 ## Response
+
+*Calculate the unit response rate.*
+
 ```{r}
 gross_sample_size <- 592
 # keep only rows that indicated completeness
-dataset <- subset(dataset,!is.na(dataset$COMPLETE))
+dataset <- subset(dataset,dataset$COMPLETE!="")
 100 /gross_sample_size * nrow(dataset)
 
 ```
 
 
-
 ## Measurement Levels and Missingness
 
-Check data for missing values.
+*Check the measurement levels and missigness of sections C & D.*
+
+### Measurement Levels
+
+The measurement levels of the variables in section C & D are follows:
+
+* C1 - C4 are ratios
+* C 5 -7 are ordinally scaled variable
+* C8, C9 & D1 are ratios
+* D2 is a nominal variable
+* D3 is a nominal variable that uses one-hot encoding
+* D4 - D8 are ratios
+* D9IncYes1 is a nominal variable
+* D9 is 
+
+To make the data better readable it is useful to label the ordinal and nominal variables. 
+Variables C5 - C7 follow a 7-level Likert Scale, therefore the labels will be:  
+
+1 = Strongly Disagree  
+2 = Disagree  
+3 = Somewhat Disagree  
+4 = Neither Agree or Disagree  
+5 = Somewhat Agree  
+6 = Agree  
+7 = Strongly Agree
 
 ```{r}
-table(sapply(dataset, is.na))
-
+# transform the variables to factor and add labels
+to_7_level_likert <- function(x){
+x <- factor(x,
+                     levels = c(1,2,3,4,5,6,7), 
+                     labels = c("Strongly Disagree",
+                                "Disagree",
+                                "Somewhat Disagree",
+                                "Neither Agree or Disagree",
+                                "Somewhat Agree",
+                                "Agree",
+                                "Strongly Agree"),
+                     ordered = TRUE)
+}
+dataset$C5 <- to_7_level_likert(dataset$C5)
+dataset$C6 <- to_7_level_likert(dataset$C6)
+dataset$C7 <- to_7_level_likert(dataset$C7)
+# example
+levels(dataset$C5)
 
 ```
-There are 2818 missing values in the data set. The values are distributed as follows among the variables:
+D2 and D9IncYes1 are nominal variables with two levels each. The variables are also transformed to factors and labels are added.
+```{r}
+dataset$D2 <- factor(dataset$D2,levels = c(1,2),labels = c("Privately held","Publicly Traded"),ordered = FALSE)
+dataset$D9IncYes1 <- factor(dataset$D9IncYes1,levels = c(0,1),labels = c("No","Yes"),ordered = FALSE)
+summary(dataset$D2)
+summary(dataset$D9IncYes1)
+
+```
+
+### Missingness
+
+*Check data for missing values in sections C and D.*
 
 ```{r}
-data.frame(colSums(is.na(dataset)))
+#create a subset that only contains sections C and D
+dataset_c_d <- dataset[,grep("C1",colnames(dataset)):grep("D9EGov",colnames(dataset))]
+out <- table(sapply(dataset_c_d, is.na))
+out
+
+```
+There are `r out[2]`  missing values in the data set. The values are distributed as follows among the variables:
+
+```{r}
+data.frame(colSums(is.na(dataset_c_d)))
 ```
 
+
+ 
 
 ## Missingness of D9IncYes1
 
+```{r}
+# contingency table
+
+
+```
+
+
 # Analysis
 
-## Proportion of Programme Participation
+## Proportion of Programme 
+
+*Calculate the proportion and 95% confidence interval for incubator participants.*
+
+```{r}
+#get rid of NAs
+D9IncYes1 <- subset(dataset$D9IncYes1,!is.na(dataset$D9IncYes1))
+
+
+
+```
+
 
 ## Satisfaction with product development process
 
