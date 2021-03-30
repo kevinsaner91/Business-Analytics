@@ -22,6 +22,7 @@ library(haven) # to read SPSS files
 library(labelled) # to deal with variable and value labels
 library(knitr) # to get the kable() function for nice tables
 library(gplots) # to get the plotmeans() function
+library(ggplot2)
 ```
 
 
@@ -116,8 +117,14 @@ levels(dataset$C5)
 ```
 D2 and D9IncYes1 are nominal variables with two levels each. The variables are also transformed to factors and labels are added.
 ```{r}
-dataset$D2 <- factor(dataset$D2,levels = c(1,2),labels = c("Privately held","Publicly Traded"),ordered = FALSE)
-dataset$D9IncYes1 <- factor(dataset$D9IncYes1,levels = c(0,1),labels = c("No","Yes"),ordered = FALSE)
+dataset$D2 <- factor(dataset$D2,
+                     levels = c(1,2),
+                     labels = c("Privately held","Publicly Traded"),
+                     ordered = FALSE)
+dataset$D9IncYes1 <- factor(dataset$D9IncYes1,
+                            levels = c(0,1),
+                            labels = c("No","Yes"),
+                            ordered = FALSE)
 summary(dataset$D2)
 summary(dataset$D9IncYes1)
 
@@ -149,6 +156,20 @@ data.frame(colSums(is.na(dataset_c_d)))
 # contingency table
 
 
+table(is.na(dataset$D4),is.na(dataset$D9IncYes1))
+
+
+```
+223 have answered both questions. 9 have answered neither D4 nor D9IncYes1. 10 have answered D4 but not D9IncYes1. 4 have answered D9IncYes1 but not D4.
+
+```{r}
+#make a subset with only the variables of interest
+dataset_D4_D9IncYes1 <- dataset[,c("D4","D9IncYes1")]
+#keep only rows where the company size is meaningful
+dataset_D4_D9IncYes1<- subset(dataset_D4_D9IncYes1,!is.na(dataset$D4))
+
+ggplot(dataset_D4_D9IncYes1, aes(x=D9IncYes1,y=D4)) + geom_boxplot()
+
 ```
 
 
@@ -160,9 +181,10 @@ data.frame(colSums(is.na(dataset_c_d)))
 
 ```{r}
 #get rid of NAs
-D9IncYes1 <- subset(dataset$D9IncYes1,!is.na(dataset$D9IncYes1))
+D9IncAll <- length(subset(dataset$D9IncYes1,!is.na(dataset$D9IncYes1)))
+D9IncYes <- length(subset(dataset$D9IncYes1,dataset$D9IncYes1=="Yes"))
 
-
+prop.test(D9IncYes,D9IncAll,correct = FALSE)
 
 ```
 
