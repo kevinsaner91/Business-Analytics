@@ -168,10 +168,17 @@ dataset_D4_D9IncYes1 <- dataset[,c("D4","D9IncYes1")]
 #keep only rows where the company size is meaningful
 dataset_D4_D9IncYes1<- subset(dataset_D4_D9IncYes1,!is.na(dataset$D4))
 
-ggplot(dataset_D4_D9IncYes1, aes(x=D9IncYes1,y=D4)) + geom_boxplot()
+ggplot(dataset_D4_D9IncYes1, aes(x=D9IncYes1,y=D4)) + geom_boxplot(outlier.colour = NA) +  coord_cartesian(ylim = c(0, 60))
 
 ```
 
+```{r}
+# test for a statistically significant difference between yes and no
+wilcox.test(dataset$D4[which(dataset$D9IncYes1=="Yes")],dataset$D4[which(dataset$D9IncYes1=="No")])
+
+```
+
+Reject H0, companies that did not participate in an incubator program are bigger.
 
 # Analysis
 
@@ -196,6 +203,16 @@ prop.test(D9IncYes,D9IncAll,correct = FALSE)
 ## Number of R+D personnel
 
 ## R+D personnel vs participation
+
+```{r}
+# Fabian showed this during the lecture use as base for the solution
+x<-rnorm(1000,0,1)
+f<-fsample(c(0,1),size=1000,replace=TRUE)
+mydf<-data.frame(x=x,f=f)
+aggregate(mydf$x,by=list(f),qqnorm)
+
+```
+
 
 ## Including Plots (to be deleted, just an example)
 
