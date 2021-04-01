@@ -168,17 +168,21 @@ dataset_D4_D9IncYes1 <- dataset[,c("D4","D9IncYes1")]
 #keep only rows where the company size is meaningful
 dataset_D4_D9IncYes1<- subset(dataset_D4_D9IncYes1,!is.na(dataset$D4))
 
+dataset_D4_D9IncYes1$D9IncYes1[which(!is.na(dataset_D4_D9IncYes1$D9IncYes1))]<- "Yes"
+dataset_D4_D9IncYes1$D9IncYes1 <- factor(dataset_D4_D9IncYes1$D9IncYes1,
+                            levels = c("Yes"),
+                            labels = c("Responder"),
+                            ordered = FALSE)
+
 ggplot(dataset_D4_D9IncYes1, aes(x=D9IncYes1,y=D4)) + geom_boxplot(outlier.colour = NA) +  coord_cartesian(ylim = c(0, 60))
 
 ```
 
 ```{r}
-# test for a statistically significant difference between yes and no
-wilcox.test(dataset$D4[which(dataset$D9IncYes1=="Yes")],dataset$D4[which(dataset$D9IncYes1=="No")])
-
+# test for a statistically significant difference between response and non-response
+wilcox.test(dataset$D4[which(is.na(dataset$D9IncYes1))],dataset$D4[which(!is.na(dataset$D9IncYes1))])
 ```
-
-Reject H0, companies that did not participate in an incubator program are bigger.
+Reject H0, companies that did not respond to D9IncYes1 are bigger.
 
 # Analysis
 
@@ -191,7 +195,7 @@ Reject H0, companies that did not participate in an incubator program are bigger
 D9IncAll <- length(subset(dataset$D9IncYes1,!is.na(dataset$D9IncYes1)))
 D9IncYes <- length(subset(dataset$D9IncYes1,dataset$D9IncYes1=="Yes"))
 
-prop.test(D9IncYes,D9IncAll,correct = FALSE)
+prop.test(D9IncYes,D9IncAll,correct = FALSE) 
 
 ```
 
@@ -206,10 +210,10 @@ prop.test(D9IncYes,D9IncAll,correct = FALSE)
 
 ```{r}
 # Fabian showed this during the lecture use as base for the solution
-x<-rnorm(1000,0,1)
-f<-fsample(c(0,1),size=1000,replace=TRUE)
-mydf<-data.frame(x=x,f=f)
-aggregate(mydf$x,by=list(f),qqnorm)
+#x<-rnorm(1000,0,1)
+#f<-fsample(c(0,1),size=1000,replace=TRUE)
+#mydf<-data.frame(x=x,f=f)
+#aggregate(mydf$x,by=list(f),qqnorm)
 
 ```
 
