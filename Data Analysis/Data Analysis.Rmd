@@ -1,7 +1,7 @@
 ---
 title: "Assignment Data Analysis"
 author: "Kevin Saner, Phillip Gachnang, Raphael Denz"
-date: "18 3 2021"
+date: "18. 3. 2021"
 output: word_document
 ---
 
@@ -22,7 +22,7 @@ library(haven) # to read SPSS files
 library(labelled) # to deal with variable and value labels
 library(knitr) # to get the kable() function for nice tables
 library(gplots) # to get the plotmeans() function
-library(ggplot2)
+library(ggplot2) # for grouped boxplot
 ```
 
 
@@ -36,7 +36,7 @@ dataset = read_sav("npd.sav")
 
 ## Check the dimension and the variables
 
-*Check the dimensions of the data set.*
+*Check the dimensions of the data set. What are the names. Is the data labelled?*
 
 ```{r}
 a<- dim(dataset)
@@ -44,27 +44,33 @@ a
 
 ```
 
-The dataset contains `r a[1]` observations and `r a[2]` variables.
+The above output shows that the dataset contains `r a[1]` observations and `r a[2]` variables.
 
 ```{r}
 names(dataset)
 ```
-The names of the variables match the questions of the questionnaire.
+The above command delivers the names of the columns in the data set. It can be seen that the names of the columns match the questions of the questionnaire. The data set contains no labels. Some of the data in the data set is stored as free text such as the product category (A1). Most of data, however, is stored as numerical data where it only becomes clear when looking at the questionnaire whether the data refers to qualitative or quantitative data. The below example marks an exception: 
 
-The variables are not labelled.
+```{r}
+# example of different encoding styles
+head(dataset$A2)
+head(dataset$B1)
+```
+Although, both questions A2 and B1 refer to a "Yes"- or "No"-question, the way the answers are stored look different. This due to a inconsistent encoding style.
 
 ## Response
 
 *Calculate the unit response rate.*
 
 ```{r}
+# store gross sample size
 gross_sample_size <- 592
 # keep only rows that indicated completeness
 dataset <- subset(dataset,dataset$COMPLETE!="")
 100 /gross_sample_size * nrow(dataset)
 
 ```
-
+To calculate the unit response rate only data is considered that is complete. Incomplete data is identified using the column "Complete". This way a unit reponse rate of 41.55% is calculated, meaning that less than half the companies that were asked completed the questionnaire.
 
 ## Measurement Levels and Missingness
 
@@ -81,10 +87,10 @@ The measurement levels of the variables in section C & D are follows:
 * D3 is a nominal variable that uses one-hot encoding
 * D4 - D8 are ratios
 * D9IncYes1 is a nominal variable
-* D9 is 
+* D9* is dependent on D9IncYes1 and also uses one-hot encoding
 
 To make the data better readable it is useful to label the ordinal and nominal variables. 
-Variables C5 - C7 follow a 7-level Likert Scale, therefore the labels will be:  
+Variables C5 - C7 follow a 7-level Likert-Scale, therefore the labels will be:  
 
 1 = Strongly Disagree  
 2 = Disagree  
@@ -93,6 +99,8 @@ Variables C5 - C7 follow a 7-level Likert Scale, therefore the labels will be:
 5 = Somewhat Agree  
 6 = Agree  
 7 = Strongly Agree
+
+
 
 ```{r}
 # transform the variables to factor and add labels
@@ -111,10 +119,12 @@ x <- factor(x,
 dataset$C5 <- to_7_level_likert(dataset$C5)
 dataset$C6 <- to_7_level_likert(dataset$C6)
 dataset$C7 <- to_7_level_likert(dataset$C7)
-# example
+# example of the newly introduced factors
 levels(dataset$C5)
 
 ```
+The example shows the levels of the transformed variable C5.
+
 D2 and D9IncYes1 are nominal variables with two levels each. The variables are also transformed to factors and labels are added.
 ```{r}
 dataset$D2 <- factor(dataset$D2,
@@ -129,6 +139,7 @@ summary(dataset$D2)
 summary(dataset$D9IncYes1)
 
 ```
+The output shows the count of occurrences per label. 
 
 ### Missingness
 
@@ -146,43 +157,40 @@ There are `r out[2]`  missing values in the data set. The values are distributed
 ```{r}
 data.frame(colSums(is.na(dataset_c_d)))
 ```
-
-
- 
-
 ## Missingness of D9IncYes1
+
+*Create a contingency table between is.na(D4) and is.na(D9IncYes1)*
 
 ```{r}
 # contingency table
-
-
 table(is.na(dataset$D4),is.na(dataset$D9IncYes1))
 
-
 ```
-223 have answered both questions. 9 have answered neither D4 nor D9IncYes1. 10 have answered D4 but not D9IncYes1. 4 have answered D9IncYes1 but not D4.
+The result of the contigency tables shows that, 223 have answered both questions, 9 have answered neither D4 nor D9IncYes1, 10 have answered D4 but not D9IncYes1 and 4 have answered D9IncYes1 but not D4. To sum, there are only 23 companies that did not answer one of the questions, which relates to roughly 10% of responders.
+
+*Create a grouped boxplot to compare responders and non-responders.*
 
 ```{r}
 #make a subset with only the variables of interest
 dataset_D4_D9IncYes1 <- dataset[,c("D4","D9IncYes1")]
 #keep only rows where the company size is meaningful
 dataset_D4_D9IncYes1<- subset(dataset_D4_D9IncYes1,!is.na(dataset$D4))
-
-dataset_D4_D9IncYes1$D9IncYes1[which(!is.na(dataset_D4_D9IncYes1$D9IncYes1))]<- "Yes"
+#if D9IncYes1 is !NA, it counts as reponder
 dataset_D4_D9IncYes1$D9IncYes1 <- factor(dataset_D4_D9IncYes1$D9IncYes1,
-                            levels = c("Yes"),
-                            labels = c("Responder"),
+                            levels = c("Yes","No"),
+                            labels = c("Responder","Responder"),
                             ordered = FALSE)
-
-ggplot(dataset_D4_D9IncYes1, aes(x=D9IncYes1,y=D4)) + geom_boxplot(outlier.colour = NA) +  coord_cartesian(ylim = c(0, 60))
+# outliers are hidden in the boxplot
+ggplot(dataset_D4_D9IncYes1, aes(x=D9IncYes1,y=D4)) + geom_boxplot(outlier.colour = NA) +  coord_cartesian(ylim = c(0, 60)) + xlab("Responder/Non-Responder") + ylab("Number of employees")
 
 ```
-
+The median of the NA-group is close to 20, whereas the median of the responders is under 10, which indicates 
+a size difference of the companies when looking at the employees. Additionally, a wilcoxon test is done to test this hypothesis:
 ```{r}
-# test for a statistically significant difference between response and non-response
+# test for a statistically significant difference between responder and non-responder
 wilcox.test(dataset$D4[which(is.na(dataset$D9IncYes1))],dataset$D4[which(!is.na(dataset$D9IncYes1))])
 ```
-Reject H0, companies that did not respond to D9IncYes1 are bigger.
+The Wicoxon-Test we can reject the null hypothesis, which means that companies that did not respond to D9IncYes1 have more employees.
 
 # Analysis
 
@@ -191,13 +199,16 @@ Reject H0, companies that did not respond to D9IncYes1 are bigger.
 *Calculate the proportion and 95% confidence interval for incubator participants.*
 
 ```{r}
-#get rid of NAs
+#only non-NA values are used to calculate the total
 D9IncAll <- length(subset(dataset$D9IncYes1,!is.na(dataset$D9IncYes1)))
 D9IncYes <- length(subset(dataset$D9IncYes1,dataset$D9IncYes1=="Yes"))
 
-prop.test(D9IncYes,D9IncAll,correct = FALSE) 
+D9IncAll
+D9IncYes 
 
+prop.test(D9IncYes,D9IncAll) 
 ```
+The output shows that there are 227 companies that responded to question D9IncYes1, of which 68 answered "yes - they did participate in an incubator programme". This results in a proportion of approximately 30% with a 95% confidence interval between 24,2% and 36,4%. In other words, we are 95% confident that the true proportion of survey participants that participated in an incubator programme lies between 24,2% and 36,4%.  
 
 
 ## Satisfaction with product development process
