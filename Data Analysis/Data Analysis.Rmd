@@ -223,7 +223,7 @@ b = max(subset(dataset$C5,!is.na(dataset$C5)))
 # axis(side=1,at=histogram$mids,labels=seq(a,b))
 
 ```
-The barchart shows in this case a histogram, the frequency distribution of product development process satisfaction of all participants. The plot depicts the comparison of the satisfaction ratio from `r names(table(dataset$C5)[a])` to `r names(table(dataset$C5)[b])` in `r nlevels(dataset$C5)` levels. The plots doesn't show a normal frequency distribution. In fact the frequency distribution leans strongly towards `r names(table(dataset$C5)[b])`. The highest frequency with `r table(dataset$C5)[b]` participants are `r names(table(dataset$C5)[b])` while the lowest frequency with only `r table(dataset$C5)[a]` participants `r names(table(dataset$C5)[a])` with the satisfaction of their product development process.
+The barchart shows in this case a histogram, the frequency distribution of product development process satisfaction of all participants. The plot depicts the comparison of the satisfaction ratio from `r names(table(dataset$C5)[a])` to `r names(table(dataset$C5)[b])` in `r nlevels(dataset$C5)` levels. The frequency distribution leans towards `r names(table(dataset$C5)[b])`. The highest frequency with `r table(dataset$C5)[b]` participants are `r names(table(dataset$C5)[b])` while the lowest frequency with only `r table(dataset$C5)[a]` participants `r names(table(dataset$C5)[a])` with the satisfaction of their product development process.
 
 
 
