@@ -10,10 +10,10 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Starting situation
-Description of the dataset.
+The case is adapted from Sharpe, N.R., Ali, A., Potter, M.E. (2001): A Casebook for Business Statistics, Wiley, New York, p 13-20. The case (Sharpe-etal-NPD-Case-A-1-3.pdf), the questionnaire of the survey (NPD-Questionnaire.pdf) and the data of the case (npd.sav) are on moodle. The data is stored as an SPSS-file. Read the data using the data import of RStudio and carry out the tasks below using R.
 
 ## To-Do
-Description of the tasks.
+Carry out the following tasks. Comment on each of the results in a few words! Work in groups of 3 members. Establish a report. Write the full names of all members of the group on the top of the first page of the report. Upload the report as a pdf to moodle: Only one person per group must upload the pdf.
 
 ## Prerequisites
 ```{r, message=FALSE,warning=FALSE}
@@ -25,6 +25,9 @@ library(gplots) # to get the plotmeans() function
 library(ggplot2) # for grouped boxplot
 ```
 
+# 1 Data Preparation
+
+## 1.1 Read the data
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 rm(list = ls()) # clear workspace, use if needed
@@ -32,9 +35,7 @@ dataset = read_sav("npd.sav")
 
 ```
 
-# Data Preparation
-
-## Check the dimension and the variables
+## 1.2 Check the dimension and the variables
 
 *Check the dimensions of the data set. What are the names. Is the data labelled?*
 
@@ -58,7 +59,7 @@ head(dataset$B1)
 ```
 Although, both questions A2 and B1 refer to a "Yes"- or "No"-question, the way the answers are stored look different. This due to a inconsistent encoding style.
 
-## Response
+## 1.3 Response
 
 *Calculate the unit response rate.*
 
@@ -72,11 +73,11 @@ dataset <- subset(dataset,dataset$COMPLETE!="")
 ```
 To calculate the unit response rate only data is considered that is complete. Incomplete data is identified using the column "Complete". This way a unit reponse rate of 41.55% is calculated, meaning that less than half the companies that were asked completed the questionnaire.
 
-## Measurement Levels and Missingness
+## 1.4 Measurement Levels and Missingness
 
 *Check the measurement levels and missigness of sections C & D.*
 
-### Measurement Levels
+### 1.4a Measurement Levels
 
 The measurement levels of the variables in section C & D are follows:
 
@@ -141,7 +142,7 @@ summary(dataset$D9IncYes1)
 ```
 The output shows the count of occurrences per label. 
 
-### Missingness
+### 1.4b Missingness
 
 *Check data for missing values in sections C and D.*
 
@@ -157,7 +158,7 @@ There are `r out[2]`  missing values in the data set. The values are distributed
 ```{r}
 data.frame(colSums(is.na(dataset_c_d)))
 ```
-## Missingness of D9IncYes1
+## 1.5 Missingness of D9IncYes1
 
 *Create a contingency table between is.na(D4) and is.na(D9IncYes1)*
 
@@ -192,9 +193,9 @@ wilcox.test(dataset$D4[which(is.na(dataset$D9IncYes1))],dataset$D4[which(!is.na(
 ```
 The Wicoxon-Test we can reject the null hypothesis, which means that companies that did not respond to D9IncYes1 have more employees.
 
-# Analysis
+# 2 Analysis
 
-## Proportion of Programme 
+## 2.1 Proportion of Programme 
 
 *Calculate the proportion and 95% confidence interval for incubator participants.*
 
@@ -211,7 +212,7 @@ prop.test(D9IncYes,D9IncAll)
 The output shows that there are 227 companies that responded to question D9IncYes1, of which 68 answered "yes - they did participate in an incubator programme". This results in a proportion of approximately 30% with a 95% confidence interval between 24,2% and 36,4%. In other words, we are 95% confident that the true proportion of survey participants that participated in an incubator programme lies between 24,2% and 36,4%.  
 
 
-## Satisfaction with product development process
+## 2.2 Satisfaction with product development process
 *Analyse the satisfaction with the product development process (C5) using a barchart.*
 ```{r}
 barplot(table(dataset$C5), main="Barchart of Satisfaction", xlab="Satisfaction", ylab="Frequency")
@@ -224,11 +225,20 @@ b = max(subset(dataset$C5,!is.na(dataset$C5)))
 ```
 The barchart shows in this case a histogram, the frequency distribution of product development process satisfaction of all participants. The plot depicts the comparison of the satisfaction ratio from `r names(table(dataset$C5)[a])` to `r names(table(dataset$C5)[b])` in `r nlevels(dataset$C5)` levels. The frequency distribution leans towards `r names(table(dataset$C5)[b])`. The highest frequency with `r table(dataset$C5)[b]` participants are `r names(table(dataset$C5)[b])` while the lowest frequency with only `r table(dataset$C5)[a]` participants `r names(table(dataset$C5)[a])` with the satisfaction of their product development process. We can conclude here, that most are at least satisfied by their product development process.
 
+## 2.3 Association of incubator participation and satisfaction with the product development process
+```{r}
+con = table(dataset$C5, dataset$D9IncYes1)
+con
+mosaicplot(con, shade = TRUE, las=3)
+chiresult <- chisq.test(dataset$C5, dataset$D9IncYes1)
+chiresult
+cV <- CramerV(con)
+cV
 
+```
+The chi-square test shows a p-value of `r chiresult$p.value`, this means we can reject H0, which says values are independent and conclude that the values are dependent. According to the documentation, a Cramer's V in the range of [0, 0.3] is considered as weak. The test shows a value of `r cV` and is therefore considered as weak.
 
-## Association of incubator participation and satisfaction with the product development process
-
-## Number of R+D personnel
+## 2.4 Number of R+D personnel
 
 ```{r}
 
@@ -246,21 +256,15 @@ Q1 <- quantile(dataset$D5, prob=c(.5), na.rm=TRUE)  ###  https://www.programming
 Q2 <- quantile(dataset$D5, prob=c(.25), na.rm=TRUE)
 Q3 <- quantile(dataset$D5, prob=c(.75), na.rm=TRUE)
 
-bowley <- ((Q3 - Q2) - (Q2 - Q1))/(Q3-A1)
+bowley <- ((Q3 - Q2) - (Q2 - Q1))/(Q3-Q1)
 bowley
-
 ```
 
-## R+D personnel vs participation
+
+## 2.5 R+D personnel vs participation
 
 ```{r}
-# Fabian showed this during the lecture use as base for the solution
-#x<-rnorm(1000,0,1)
-#f<-fsample(c(0,1),size=1000,replace=TRUE)
-#mydf<-data.frame(x=x,f=f)
-#aggregate(mydf$x,by=list(f),qqnorm)
-
-# ## Beispielcode:
+## Beispielcode:
 # 
 # Code:
 # shapiro.test(data$rent[which(data$nre=="non‐NRE")])
@@ -270,9 +274,9 @@ bowley
 # 
 # ### R&D person auf zwei gruppen aufgeteilt anschauen -> die inkubatoren und nicht-inkubatoren (Frage: nicht-umfrage-teilnehmer rausfiltenr oder reicht NA-Remove?) Aggregate für die gruppen nutzen
 
-shapiro.test(dataset$D5[which(dataset$D9IncYes1=="No")])
+#shapiro.test(dataset$D5[which(dataset$D9IncYes1=="No")])
   #dataset_D4_D9IncYes1$D9IncYes1=Responder/Yes/No Responder","Non-Responder"
-shapiro.test(dataset$D5[which(dataset$D9IncYes1=="Yes")])
+#shapiro.test(dataset$D5[which(dataset$D9IncYes1=="Yes")])
 
 # # YesList <- omit.na(c(dataset$D9IncYes1, exclude = "No,", na.rm=TRUE))
 # YesGroup <- aggregate(dataset, FUN="mean", data=dataset$D5, by=("Yes")) # by muss eine List haben
@@ -280,16 +284,9 @@ shapiro.test(dataset$D5[which(dataset$D9IncYes1=="Yes")])
 
 
   ## Funktioneller code:
-
-
-
-
-# https://www.r-bloggers.com/2018/07/how-to-aggregate-data-in-r/
-Groups <- aggregate(dataset, FUN="mean", data=dataset$D5, by=list(dataset$D9IncYes1), na.action = na.omit, simplify = TRUE, drop = TRUE) # beim splitt hat es nur noch NA's
-Groups <- aggregate(dataset, FUN="mean", by=list(dataset$D9IncYes1), na.action = na.omit) # beim splitt hat es nur noch NA's // FUN macht probleme
-
-wilcox.test(dataset$D5=Yes~dataset$D5=No)
-  
+test = aggregate(dataset$D5, by=list(dataset$D9IncYes1), FUN=qqnorm, na.action = na.omit)
+boxplot(test$x[1,]$y, test$x[2,]$y, names = c("No", "Yes"))
+boxplot(log(test$x[1,]$y)+1, log(test$x[2,]$y)+1, names = c("No", "Yes"))
 
 
 
