@@ -212,7 +212,7 @@ The output shows that there are 227 companies that responded to question D9IncYe
 
 
 ## Satisfaction with product development process
-*Analyse the satisfaction with the product development process (C5) using a barchart!*
+*Analyse the satisfaction with the product development process (C5) using a barchart.*
 ```{r}
 barplot(table(dataset$C5), main="Barchart of Satisfaction", xlab="Satisfaction", ylab="Frequency")
 a = min(subset(dataset$C5,!is.na(dataset$C5)))
@@ -241,14 +241,3 @@ The barchart shows in this case a histogram, the frequency distribution of produ
 #aggregate(mydf$x,by=list(f),qqnorm)
 
 ```
-
-
-## Including Plots (to be deleted, just an example)
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
