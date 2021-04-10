@@ -215,15 +215,14 @@ The output shows that there are 227 companies that responded to question D9IncYe
 *Analyse the satisfaction with the product development process (C5) using a barchart.*
 ```{r}
 barplot(table(dataset$C5), main="Barchart of Satisfaction", xlab="Satisfaction", ylab="Frequency")
-a = min(subset(dataset$C5,!is.na(dataset$C5)))
-b = max(subset(dataset$C5,!is.na(dataset$C5)))
-# # when dealing with histogram of integers, 
-# # then adding some residual ~ 0.001 will fix it all...
-# histogram = hist(dataset$C5+0.001, breaks=b-a, xaxt="n", main="Histogram of Satisfaction", xlab="Satisfaction")
-# axis(side=1,at=histogram$mids,labels=seq(a,b))
 
 ```
-The barchart shows in this case a histogram, the frequency distribution of product development process satisfaction of all participants. The plot depicts the comparison of the satisfaction ratio from `r names(table(dataset$C5)[a])` to `r names(table(dataset$C5)[b])` in `r nlevels(dataset$C5)` levels. The frequency distribution leans towards `r names(table(dataset$C5)[b])`. The highest frequency with `r table(dataset$C5)[b]` participants are `r names(table(dataset$C5)[b])` while the lowest frequency with only `r table(dataset$C5)[a]` participants `r names(table(dataset$C5)[a])` with the satisfaction of their product development process.
+```{r echo=FALSE}
+#get the max and min values of labels to refer within the text below
+a = min(subset(dataset$C5,!is.na(dataset$C5)))
+b = max(subset(dataset$C5,!is.na(dataset$C5)))
+```
+The barchart shows in this case a histogram, the frequency distribution of product development process satisfaction of all participants. The plot depicts the comparison of the satisfaction ratio from `r names(table(dataset$C5)[a])` to `r names(table(dataset$C5)[b])` in `r nlevels(dataset$C5)` levels. The frequency distribution leans towards `r names(table(dataset$C5)[b])`. The highest frequency with `r table(dataset$C5)[b]` participants are `r names(table(dataset$C5)[b])` while the lowest frequency with only `r table(dataset$C5)[a]` participants `r names(table(dataset$C5)[a])` with the satisfaction of their product development process. We can conclude here, that most are at least satisfied by their product development process.
 
 
 
