@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Starting situation
-The case is adapted from Sharpe, N.R., Ali, A., Potter, M.E. (2001): A Casebook for Business Statistics, Wiley, New York, p 13-20. The data represents a survey where entrepreneurs were asked about the satisfaction of their product development process. Because developing a new product is often challenging, the participants were also asked if the used the help of an incubator program to jump-start their business. The survey should further give answers on satisfaction with the incubator programs, and also give insights on what kind of companies used those programs. 
+The case is adapted from Sharpe, N.R., Ali, A., Potter, M.E. (2001): A Casebook for Business Statistics, Wiley, New York, p 13-20. The data represents a survey where entrepreneurs were asked about the satisfaction of their product development process. Because developing a new product is often challenging, the participants were also asked if they used the help of an incubator program to jump-start their business. The survey should further give answers on satisfaction with the incubator programs, and also give insights on what kind of companies used those programs. 
 
 ## To-Do
 Carry out the following tasks. Comment on each of the results in a few words! Work in groups of 3 members. Establish a report. Write the full names of all members of the group on the top of the first page of the report. Upload the report as a pdf to moodle: Only one person per group must upload the pdf.
