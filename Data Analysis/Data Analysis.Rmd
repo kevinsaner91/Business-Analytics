@@ -404,11 +404,11 @@ wilcox.test(test$x[1,]$y, test$x[2,]$y, alernative="two-sided")
 
 ```
 
-The Wilcoxon-Test helps us to analyse two populations which are not normally distributed. Applied we receive the p-value = 0.02956, which indicates to us thate we should reject the null hypothesis, as the values lies below 0.05 or 5%. This means that both populations are not significant differently.
+The Wilcoxon-Test helps us to analyze two populations which are not normally distributed. Applied we receive the p-value = 0.02956, which indicates to us that we should reject the null hypothesis, as the values lies below 0.05 or 5%. This means that both populations are not significant differently.
 
 ### 2.5c Conclusion
 
-We can see in all graphics, that the number of R&D personnel is greater for survey participants which are not incubator participants and normally around 2 employees. FOr participants, the number of R&D personnel is smaller and normally around 1 employee.
+We can see in all graphics, that the number of R&D personnel is greater for survey participants which are not incubator participants and normally around 2 employees. For participants, the number of R&D personnel is smaller and normally around 1 employee.
 
 The t-test (which should not be used, according to the Shapiro-Test) and Wilcoxon-test assumes that the R&D personnel for participants and non-participants are not significantly different. We can reject in both tests this Null hypothesis, because both tests give a lower p-value than the significance level of 5%. Therefore, the R&D personnel of participants and non-participants are significant different. 
 
