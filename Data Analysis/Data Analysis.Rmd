@@ -258,6 +258,9 @@ hist(log(dataset$D5)+1, main="R&D distribution with log-numbers")
 
 TODO
 
+#### Boxplot
+*Create a Boxplot to compare the R&D personnel of incubator and non-participants.*
+
 ```{r, message=FALSE,warning=FALSE}
 
 boxplot(dataset$D5, main="R&D distribution")
@@ -267,6 +270,10 @@ boxplot(log(dataset$D5)+1, main="R&D distribution with log-numbers")
 ```
 
 TODO
+
+### 2.4b Graphical distribution of R&D personnel between incubators and non-participants.
+#### Bowley Skeweness
+*Calculate the Bowley Skeweness to see if the curve is skewed.*
 
 ```{r, message=FALSE,warning=FALSE}
 
@@ -279,6 +286,8 @@ bowley <- ((Q3 - Q2) - (Q2 - Q1))/(Q3 - Q1)
 bowley
 
 ```
+
+TODO
 
 Using the histogram and boxplot for the distribution of R&D personnel, we can see in the normal graphics that the values are extremely squished in the direction of 0 and far distant outliers. Using log ("log(D5+1)"), we can improve the graphics with establishing a normal distribution. According to the new histogram and boxplot, we can identify that most values are almost centered around 2. Which means most survey participants have two R&D personnel.
 
@@ -375,6 +384,8 @@ TODO
 wilcox.test(test$x[1,]$y, test$x[2,]$y, alernative="two-sided")
 
 ```
+
+TODO
 
 
 We can see in all graphics, that the number of R&D personnel is greater for survey participants which are not incubator participants and normally around 2 employees. FOr participants, the number of R&D personnel is smaller and normally around 1 employee.
