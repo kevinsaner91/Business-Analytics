@@ -2,9 +2,7 @@
 title: "Assignment Data Analysis"
 author: "Kevin Saner, Phillip Gachnang, Raphael Denz"
 date: "18. 3. 2021"
-output:
-  html_document:
-    df_print: paged
+output: word_document
 ---
 
 ```{r setup, include=FALSE}
@@ -12,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Starting situation
-The case is adapted from Sharpe, N.R., Ali, A., Potter, M.E. (2001): A Casebook for Business Statistics, Wiley, New York, p 13-20. The case (Sharpe-etal-NPD-Case-A-1-3.pdf), the questionnaire of the survey (NPD-Questionnaire.pdf) and the data of the case (npd.sav) are on moodle. The data is stored as an SPSS-file. Read the data using the data import of RStudio and carry out the tasks below using R.
+The case is adapted from Sharpe, N.R., Ali, A., Potter, M.E. (2001): A Casebook for Business Statistics, Wiley, New York, p 13-20. The data represents a survey where entrepreneurs were asked about the satisfaction of their product development process. Because developing a new product is often challenging, the participants were also asked if the used the help of an incubator program to jump-start their business. The survey should further give answers on satisfaction with the incubator programs, and also give insights on what kind of companies used those programs. 
 
 ## To-Do
 Carry out the following tasks. Comment on each of the results in a few words! Work in groups of 3 members. Establish a report. Write the full names of all members of the group on the top of the first page of the report. Upload the report as a pdf to moodle: Only one person per group must upload the pdf.
@@ -31,8 +29,8 @@ library(ggplot2) # for grouped boxplot
 
 ## 1.1 Read the data
 
-```{r message=FALSE, warning=FALSE, include=FALSE}
-rm(list = ls()) # clear workspace, use if needed
+```{r message=FALSE, warning=FALSE}
+rm(list = ls()) # clear workspace
 dataset = read_sav("npd.sav")
 
 ```
@@ -103,8 +101,6 @@ Variables C5 - C7 follow a 7-level Likert-Scale, therefore the labels will be:
 6 = Agree  
 7 = Strongly Agree
 
-
-
 ```{r}
 # transform the variables to factor and add labels
 to_7_level_likert <- function(x){
@@ -124,7 +120,6 @@ dataset$C6 <- to_7_level_likert(dataset$C6)
 dataset$C7 <- to_7_level_likert(dataset$C7)
 # example of the newly introduced factors
 levels(dataset$C5)
-
 ```
 The example shows the levels of the transformed variable C5.
 
@@ -140,7 +135,6 @@ dataset$D9IncYes1 <- factor(dataset$D9IncYes1,
                             ordered = FALSE)
 summary(dataset$D2)
 summary(dataset$D9IncYes1)
-
 ```
 The output shows the count of occurrences per label. 
 
@@ -153,7 +147,6 @@ The output shows the count of occurrences per label.
 dataset_c_d <- dataset[,grep("C1",colnames(dataset)):grep("D9EGov",colnames(dataset))]
 out <- table(sapply(dataset_c_d, is.na))
 out
-
 ```
 There are `r out[2]`  missing values in the data set. The values are distributed as follows among the variables:
 
@@ -167,7 +160,6 @@ data.frame(colSums(is.na(dataset_c_d)))
 ```{r}
 # contingency table
 table(is.na(dataset$D4),is.na(dataset$D9IncYes1))
-
 ```
 The result of the contigency tables shows that, 223 have answered both questions, 9 have answered neither D4 nor D9IncYes1, 10 have answered D4 but not D9IncYes1 and 4 have answered D9IncYes1 but not D4. To sum, there are only 23 companies that did not answer one of the questions, which relates to roughly 10% of responders.
 
@@ -185,7 +177,6 @@ dataset_D4_D9IncYes1$D9IncYes1 <- factor(dataset_D4_D9IncYes1$D9IncYes1,
                             ordered = FALSE)
 # outliers are hidden in the boxplot
 ggplot(dataset_D4_D9IncYes1, aes(x=D9IncYes1,y=D4)) + geom_boxplot(outlier.colour = NA) +  coord_cartesian(ylim = c(0, 60)) + xlab("Responder/Non-Responder") + ylab("Number of employees")
-
 ```
 
 The median of the NA-group is close to 20, whereas the median of the responders is under 10, which indicates 
@@ -229,31 +220,39 @@ b = max(subset(dataset$C5,!is.na(dataset$C5)))
 The barchart shows in this case a histogram, the frequency distribution of product development process satisfaction of all participants. The plot depicts the comparison of the satisfaction ratio from `r names(table(dataset$C5)[a])` to `r names(table(dataset$C5)[b])` in `r nlevels(dataset$C5)` levels. The frequency distribution leans towards `r names(table(dataset$C5)[b])`. The highest frequency with `r table(dataset$C5)[b]` participants are `r names(table(dataset$C5)[b])` while the lowest frequency with only `r table(dataset$C5)[a]` participants `r names(table(dataset$C5)[a])` with the satisfaction of their product development process. We can conclude here, that most are at least satisfied by their product development process.
 
 ## 2.3 Association of incubator participation and satisfaction with the product development process
+*Does the satisfaction with the product development process differ between participants and non-participants in incubator programs? Create a corresponding contingency table, a mosaicplot and test for independence.*
 ```{r}
 con = table(dataset$C5, dataset$D9IncYes1)
 con
-mosaicplot(con, shade = TRUE, las=3)
+```
+
+The contigency table shows the distribution of the answers to the following question: "We are satisfied with our product development process." 
+
+```{r}
+mosaicplot(con, shade = TRUE, las=3, xlab="Satisfaction with development process")
+```
+
+From the mosaic plot, and the contigency table no obvious differences in satisfaction with the product development process between incubator participant and non-particpants compared to the general satisfaction shown in 2.2 can be seen.
+
+```{r warning=FALSE}
 chiresult <- chisq.test(dataset$C5, dataset$D9IncYes1)
 chiresult
 cV <- CramerV(con)
 cV
-
 ```
 As p-value of the chi-squered test of `r chiresult$p.value` is greater than the 0.05 significance level, we do not reject the null hypothesis that the satisfaction of the product development process is independent on the incubation program. According to the documentation, a Cramer's V in the range of [0, 0.3] is considered as weak and the result of a value of `r cV` is therefore considered as a weak. To conclude the two results, even if there is an dependency of the satisfaction of the product development process with the incubation program, this dependency seems to be weak.
 
 ## 2.4 Number of R+D personnel
 ### 2.4a Graphical distribution of R&D personnel.
-#### Quartile-Quartile Plot
+#### Quantile-Quantile Plot
 
-*Create a Quartile-Quartile Plot to compare the R&D personnel of incubator and non-participants.*
+*Create a Quantile-Quantile Plot to compare the R&D personnel of incubator and non-participants.*
 
 ```{r, message=FALSE,warning=FALSE}
 
 # Outliers are drawn to show the differences
 hist(dataset$D5, main="R&D distribution")
 hist(log(dataset$D5)+1, main="R&D distribution with log-numbers")
-
-
 ```
 
 To analyze the distribution of R&D personnel, we are using a Histogram. We are drawing the outliers, as it is important to us to understand the whole distribution. Additionally, we use a Histogram on log-based number, tho receive a better understanding of the normally distributed values.
@@ -264,26 +263,21 @@ As visible, most companies have very few R&D personnel compared to the companies
 *Create a Boxplot to compare the R&D personnel of incubator and non-participants.*
 
 ```{r, message=FALSE,warning=FALSE}
-
-# Outliers are drawn to show the differences
 boxplot(dataset$D5, main="R&D distribution")
 boxplot(log(dataset$D5)+1, main="R&D distribution with log-numbers")
-
-
 ```
 
-We are using the boxplot to further enable us to show the strong focus on lower number of R&D personnel. Again we are drawing the outliers for both non-log and logbased boxplots, as we are interested in visualising the outliers.
+We are using the boxplot to further enable us to show the strong focus on lower number of R&D personnel. Again we are drawing the outliers for both non-log and log-based boxplots, as we are interested in visualising the outliers.
 
 In the non-log based boxplot, the distribution is extremely shifted and makes if very difficult to read the plot. However, we are easily able to identify that the majority of companies only has very few R&D employeed and only few have a lot of R&D personnel. This might lead to later conclusions about the area, in which such companies are active. These points would not be as visible on a log-based chart. 
 
-The log-based boxplot enables us to better analyze the majority of companies, which have very few R&D personnel. We see that the majority is distributed from 1 to 3 on a nprmalized scale, with a further spread out up to 5. Beyond that we only see a handfull of companies, which employ a lot of R&D personnel.
+The log-based boxplot enables us to better analyze the majority of companies, which have very few R&D personnel. We see that the majority is distributed from 1 to 3 on a normalized scale, with a further spread out up to 5. Beyond that we only see a handfull of companies, which employ a lot of R&D personnel.
 
 
 ### 2.4b Bowley Skeweness 
 *Calculate the Bowley Skeweness to see if the curve is skewed.*
 
 ```{r, message=FALSE,warning=FALSE}
-
 ## Quartile calculation for Bowley Skeweness 
 Q1 <- quantile(dataset$D5, prob=c(.25), na.rm=TRUE) 
 Q2 <- quantile(dataset$D5, prob=c(.5), na.rm=TRUE)
@@ -291,7 +285,6 @@ Q3 <- quantile(dataset$D5, prob=c(.75), na.rm=TRUE)
 
 bowley <- ((Q3 - Q2) - (Q2 - Q1))/(Q3 - Q1)
 bowley
-
 ```
 
 The Bowley Skeweness tells us, if the curve is symmetrical, positively sckewed or negatively skewed. The following numbers can be used for orientation:
@@ -307,22 +300,19 @@ The result of the skeweness is `r bowley` and as it is above 0, we conclude that
 
 Using the histogram and boxplot for the distribution of R&D personnel, we can see in the normal graphics that the values are extremely squished in the direction of 0 and far distant outliers. Using log ("log(D5+1)"), we can improve the graphics with establishing a normal distribution. According to the new histogram and boxplot, we can identify that most values are almost centered around 2. Which means most survey participants have two R&D personnel.
 
-To further analyse the R&D personnel distribution, the Bowley Skeweness is calculated using the quartiles: 
+To further analyse the R&D personnel distribution, the Bowley-Skeweness is calculated using the quartiles: 
 
-The result of the Bowley Skeweness tells us if the curve is symmetrical (Skeweness = 0), positively skewed (Skeweness > 0) or negatively skewed (Skeweness < 0). In this case, the skeweness of `r bowley` is above 0, which indicates that the curve for the distribution of R&D personel is positively skewed. 
+The result of the Bowley-Skeweness tells us if the curve is symmetrical (Skeweness = 0), positively skewed (Skeweness > 0) or negatively skewed (Skeweness < 0). In this case, the skeweness of `r bowley` is above 0, which indicates that the curve for the distribution of R&D personel is positively skewed. 
 
 ## 2.5 R+D personnel vs participation
 ### 2.5a Graphical distribution of R&D personnel between incubators and non-participants.
-#### Quartile-Quartile Plot
+#### Quantile-Quantile Plot
 
-*Create a Quartile-Quartile Plot to compare the R&D personnel of incubator and non-participants.*
+*Create a Quantile-Quantile Plot to compare the R&D personnel of incubator and non-participants.*
 
 ```{r, message=FALSE,warning=FALSE}
-
 ### QQPlot without NA's
 test = aggregate(dataset$D5, by=list(dataset$D9IncYes1), FUN="qqnorm", na.action = na.omit, main="Quantile-Quantile Plots")
-
-
 ```
 
 <span style="color:red">**
@@ -333,12 +323,9 @@ The first Quantile-Quantile Plots and the second Quantile-Quantile Plots both sh
 *Create a grouped boxplot to compare the R&D personnel of incubator and non-participants.*
 
 ```{r, message=FALSE,warning=FALSE}
-  
 # Boxplot outliers are not drawn
 boxplot(test$x[1,]$y, test$x[2,]$y, names = c("Non-Participant", "Participant"), outline=FALSE, main="R&D personnel distribution")
 boxplot(log(test$x[1,]$y)+1, log(test$x[2,]$y)+1, names = c("Non-Participant", "Participant"), outline=FALSE, main="R&D personnel distribution with log-numbers")
-
-
 ```
 
 The boxplot for the distribution of R&D personnel shows a wider distribution of personnel for non-participants of the incubator. FOr these, the mean is on two for R&D personnel. For Incubator participants, the distribution is much more focused with a mean around 1 R&D personnel for both the non-log and log-based boxplot.
@@ -347,13 +334,10 @@ The boxplot for the distribution of R&D personnel shows a wider distribution of 
 *Create a grouped normal plot to compare the R&D personnel of responders and non-responders.*
 
 ```{r, message=FALSE,warning=FALSE}
-
 # Normal plot outliers are not drawn
 factorvar <- factor(c(dataset$D9IncYes1))
 plot(x=factorvar, y=dataset$D5, names = c("Non-Participant", "Participant"), outline=FALSE, main="R&D personnel distribution")
 plot(x=factorvar, y=log(dataset$D5)+1, names = c("Non-Participant", "Participant"), outline=FALSE, main="R&D personnel distribution with log-numbers")
-
-
 ```
 
 As written by the task, we also applied the normal plot (Generic X-Y Plotting) to further analyse the populations. It has to be mentioned that the normal plot is easier to implement regarding its method and as it essentially creates the same plot as the boxplot, is our preferred way of generating such a graphic. Again, we are not showing the outliers for improved visibility.
@@ -401,10 +385,15 @@ When we apply the two sample t-test despite knowing already, we should not use i
 ## Wilcoxon-Test
 # The Wilcoxon-Test can be used when there is no normal distribution. The Null hypothesis shows at higher than 0.05 or 5%  that both populations are significant differently
 wilcox.test(test$x[1,]$y, test$x[2,]$y, alernative="two-sided")
-
 ```
 
+<<<<<<< .mine
+The Wilcoxon-Test helps to analyse two populations which are not normally distributed. Applied we receive the p-value = 0.02956, which indicates to us that we should reject the null hypothesis, as the values lies below 0.05 or 5%. This means that both populations are not significantly differently.
+||||||| .r28
+The Wilcoxon-Test helps us to analyse two populations which are not normally distributed. Applied we receive the p-value = 0.02956, which indicates to us thate we should reject the null hypothesis, as the values lies below 0.05 or 5%. This means that both populations are not significant differently.
+=======
 The Wilcoxon-Test helps us to analyze two populations which are not normally distributed. Applied we receive the p-value = 0.02956, which indicates to us that we should reject the null hypothesis, as the values lies below 0.05 or 5%. This means that both populations are not significant differently.
+>>>>>>> .r29
 
 ### 2.5c Conclusion
 
