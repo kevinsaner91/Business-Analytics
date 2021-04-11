@@ -244,8 +244,6 @@ As p-value of the chi-squered test of `r chiresult$p.value` is greater than the 
 
 ```{r, message=FALSE,warning=FALSE}
 
-## Histograms and boxplots
-
 # Outliers are drawn to show the differences
 hist(dataset$D5, main="R&D distribution")
 hist(log(dataset$D5)+1, main="R&D distribution with log-numbers")
@@ -253,7 +251,6 @@ boxplot(dataset$D5, main="R&D distribution")
 boxplot(log(dataset$D5)+1, main="R&D distribution with log-numbers")
 
 ## Quartile calculation for Bowley Skeweness 
-
 Q1 <- quantile(dataset$D5, prob=c(.25), na.rm=TRUE) 
 Q2 <- quantile(dataset$D5, prob=c(.5), na.rm=TRUE)
 Q3 <- quantile(dataset$D5, prob=c(.75), na.rm=TRUE)
@@ -268,7 +265,7 @@ To further analyse the R&D personnel distribution, the Bowley Skeweness is calcu
 
 [(Q3 - Q2) - (Q2 - Q1)] / (Q3 - Q1)
 
-The result of the Bowley Skeweness tells us if the curve is symmetrical (Skeweness = 0), positively skewed (Skeweness > 0) or negatively skewed (Skeweness < 0). In this case, the skeweness is above 0, which indicates that the curve for the distribution of R&D personel is positively skewed. 
+The result of the Bowley Skeweness tells us if the curve is symmetrical (Skeweness = 0), positively skewed (Skeweness > 0) or negatively skewed (Skeweness < 0). In this case, the skeweness of `r bowley` is above 0, which indicates that the curve for the distribution of R&D personel is positively skewed. 
 
 ## 2.5 R+D personnel vs participation
 
@@ -278,13 +275,11 @@ The result of the Bowley Skeweness tells us if the curve is symmetrical (Skewene
 test = aggregate(dataset$D5, by=list(dataset$D9IncYes1), FUN="qqnorm", na.action = na.omit, main="Quantile-Quantile Plots", xlab=c("Participants","Non-Participants"), ylab="R&D Personel")
 #boxplot(test$x[1,]$y, test$x[2,]$y, names = c("No", "Yes"))
 
-## Boxplot
 # Boxplot outliers are not drawn
 boxplot(test$x[1,]$y, test$x[2,]$y, names = c("No-Participant", "Participant"), outline=FALSE, main="R&D personell distribution")
 boxplot(log(test$x[1,]$y)+1, log(test$x[2,]$y)+1, names = c("Non-Participant", "Participant"), outline=FALSE, main="R&D personell distribution with log-numbers")
 
 ### Frage an Kevin: In der AUfgabe fragen sie zwar nach "normal plots", es macht aber keinen Unterschied zum Boxplot. Vielleicht haben sie geplant hier den QQ-PLot einzusetzen und es einfach normal Plot genannt?
-## Normal plot
 # Normal plot outliers are not drawn
 factorvar <- factor(c(dataset$D9IncYes1))
 plot(x=factorvar, y=dataset$D5, names = c("No-Participant", "Participant"), outline=FALSE, main="R&D personell distribution")
@@ -298,12 +293,10 @@ shapiro.test(dataset$D5[which(dataset$D9IncYes1==c("No","Yes"))])
 
 ## T-Test
 # The Null hypothesis shows at higher than 0.05 or 5%  that both populations are significant differently
-
-t.test(test$x[1,]$y, test$x[2,]$y, alternative = "two.sided") # H0 auch rejected
+t.test(test$x[1,]$y, test$x[2,]$y) # H0 auch rejected
 
 ## Wilcox-Test
 # The Wilcox-Test can be used when there is no normal distribution. The Null hypothesis shows at higher than 0.05 or 5%  that both populations are significant differently
-
 wilcox.test(test$x[1,]$y, test$x[2,]$y, alernative="two-sided")
 
 
