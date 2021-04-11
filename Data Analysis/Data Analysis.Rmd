@@ -308,7 +308,7 @@ The result of the Bowley-Skeweness tells us if the curve is symmetrical (Skewene
 ### 2.5a Graphical distribution of R&D personnel between incubators and non-participants.
 #### Quantile-Quantile Plot
 
-*Create a Quantile-Quantile Plot to compare the R&D personnel of incubator and non-participants.*
+*Create a Normal plot to compare the R&D personnel of incubator and non-participants.*
 
 ```{r, message=FALSE,warning=FALSE}
 ### QQPlot without NA's
@@ -316,7 +316,7 @@ test = aggregate(dataset$D5, by=list(dataset$D9IncYes1), FUN="qqnorm", na.action
 ```
 
 <span style="color:red">**
-The first Quantile-Quantile Plots and the second Quantile-Quantile Plots both show an extremely unequal distribution of R&D personnel. Whle both populations (see each graph) have some outliers extremely far away, the majority of Quantiles can be founds near 0. When comparing the first population with the second, it can be seen that the first graph shows much more density around 0.
+The first Quantile-Quantile Plots and the second Quantile-Quantile Plots both show an extremely unequal distribution of R&D personnel. Wihle both populations (see each graph) have some outliers extremely far away, the majority of Quantiles can be founds near 0. When comparing the first population with the second, it can be seen that the first graph shows much more density around 0.
 **</span>
 
 #### Boxplot
@@ -328,17 +328,7 @@ boxplot(test$x[1,]$y, test$x[2,]$y, names = c("Non-Participant", "Participant"),
 boxplot(log(test$x[1,]$y)+1, log(test$x[2,]$y)+1, names = c("Non-Participant", "Participant"), outline=FALSE, main="R&D personnel distribution with log-numbers")
 ```
 
-The boxplot for the distribution of R&D personnel shows a wider distribution of personnel for non-participants of the incubator. FOr these, the mean is on two for R&D personnel. For Incubator participants, the distribution is much more focused with a mean around 1 R&D personnel for both the non-log and log-based boxplot.
-
-#### Normal plot
-*Create a grouped normal plot to compare the R&D personnel of responders and non-responders.*
-
-```{r, message=FALSE,warning=FALSE}
-# Normal plot outliers are not drawn
-factorvar <- factor(c(dataset$D9IncYes1))
-plot(x=factorvar, y=dataset$D5, names = c("Non-Participant", "Participant"), outline=FALSE, main="R&D personnel distribution")
-plot(x=factorvar, y=log(dataset$D5)+1, names = c("Non-Participant", "Participant"), outline=FALSE, main="R&D personnel distribution with log-numbers")
-```
+The boxplot for the distribution of R&D personnel shows a wider distribution of personnel for non-participants of the incubator. FOr these, the median is on two for R&D personnel. For Incubator participants, the distribution is much more focused with a median around 1 R&D personnel for both the non-log and log-based boxplot.
 
 As written by the task, we also applied the normal plot (Generic X-Y Plotting) to further analyse the populations. It has to be mentioned that the normal plot is easier to implement regarding its method and as it essentially creates the same plot as the boxplot, is our preferred way of generating such a graphic. Again, we are not showing the outliers for improved visibility.
 
