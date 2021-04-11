@@ -387,13 +387,7 @@ When we apply the two sample t-test despite knowing already, we should not use i
 wilcox.test(test$x[1,]$y, test$x[2,]$y, alernative="two-sided")
 ```
 
-<<<<<<< .mine
 The Wilcoxon-Test helps to analyse two populations which are not normally distributed. Applied we receive the p-value = 0.02956, which indicates to us that we should reject the null hypothesis, as the values lies below 0.05 or 5%. This means that both populations are not significantly differently.
-||||||| .r28
-The Wilcoxon-Test helps us to analyse two populations which are not normally distributed. Applied we receive the p-value = 0.02956, which indicates to us thate we should reject the null hypothesis, as the values lies below 0.05 or 5%. This means that both populations are not significant differently.
-=======
-The Wilcoxon-Test helps us to analyze two populations which are not normally distributed. Applied we receive the p-value = 0.02956, which indicates to us that we should reject the null hypothesis, as the values lies below 0.05 or 5%. This means that both populations are not significant differently.
->>>>>>> .r29
 
 ### 2.5c Conclusion
 
