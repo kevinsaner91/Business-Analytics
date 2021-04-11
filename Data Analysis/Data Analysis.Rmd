@@ -246,17 +246,13 @@ As p-value of the chi-squered test of `r chiresult$p.value` is greater than the 
 
 ## Histograms and boxplots
 
-hist(dataset$D5)
-hist(log(dataset$D5)+1)
-boxplot(dataset$D5)
-boxplot(log(dataset$D5)+1)
+# Outliers are drawn to show the differences
+hist(dataset$D5, main="R&D distribution")
+hist(log(dataset$D5)+1, main="R&D distribution with log-numbers")
+boxplot(dataset$D5, main="R&D distribution")
+boxplot(log(dataset$D5)+1, main="R&D distribution with log-numbers")
 
-# Quartile calculation for Bowley Skeweness 
-
-# ((Q3 - Q2) - (Q2 - Q1))/(Q3 - Q1)
-# Skewness = 0 means that the curve is symmetrical
-# Skewness > 0 means the curve is positively skewed
-# Skewness < 0 means the curve is negatively skewed
+## Quartile calculation for Bowley Skeweness 
 
 Q1 <- quantile(dataset$D5, prob=c(.25), na.rm=TRUE) 
 Q2 <- quantile(dataset$D5, prob=c(.5), na.rm=TRUE)
@@ -278,33 +274,35 @@ The result of the Bowley Skeweness tells us if the curve is symmetrical (Skewene
 
 ```{r, message=FALSE,warning=FALSE}
 
-test = aggregate(dataset$D5, by=list(dataset$D9IncYes1), FUN=qqnorm, na.action = na.omit)
-boxplot(test$x[1,]$y, test$x[2,]$y, names = c("No", "Yes"))
+### Frage an Kevin: Gibt es eine alternative zu "FUN-qqnorm", damit keine Grafik generiert wird?" In der Aufgabe steht, wir sollen aggregate mit qqnorm nutzen. Den Quantile-Quantile Plot brauchen wir jedoch nicht gezeichnet, wir brauchen nur den Wert von test für die Boxplots.
+test = aggregate(dataset$D5, by=list(dataset$D9IncYes1), FUN="qqnorm", na.action = na.omit, main="Quantile-Quantile Plots", xlab=c("Participants","Non-Participants"), ylab="R&D Personel")
+#boxplot(test$x[1,]$y, test$x[2,]$y, names = c("No", "Yes"))
 
+## Boxplot
+# Boxplot outliers are not drawn
+boxplot(test$x[1,]$y, test$x[2,]$y, names = c("No-Participant", "Participant"), outline=FALSE, main="R&D personell distribution")
+boxplot(log(test$x[1,]$y)+1, log(test$x[2,]$y)+1, names = c("Non-Participant", "Participant"), outline=FALSE, main="R&D personell distribution with log-numbers")
+
+### Frage an Kevin: In der AUfgabe fragen sie zwar nach "normal plots", es macht aber keinen Unterschied zum Boxplot. Vielleicht haben sie geplant hier den QQ-PLot einzusetzen und es einfach normal Plot genannt?
+## Normal plot
+# Normal plot outliers are not drawn
 factorvar <- factor(c(dataset$D9IncYes1))
-plot(x=factorvar, y=dataset$D5)
-plot(x=factorvar, y=log(dataset$D5)+1)
+plot(x=factorvar, y=dataset$D5, names = c("No-Participant", "Participant"), outline=FALSE, main="R&D personell distribution")
+plot(x=factorvar, y=log(dataset$D5)+1, names = c("Non-Participant", "Participant"), outline=FALSE, main="R&D personell distribution with log-numbers")
 
-boxplot(log(test$x[1,]$y)+1, log(test$x[2,]$y)+1, names = c("No", "Yes"))
 
-# Shapiro-Test
-# P-value above 0.05 or 5% means it is normally distributed and the Null hypothesis is not rejected
-# When H0 is not rejected, we can use the t-test.
-# WHen H0 is rejected (no normal distribution), we wan use the Wilcox-test
+## Shapiro-Test
+# P-value above 0.05 or 5% means it is normally distributed,the Null hypothesis is not rejected and the t-test can be used. Else the Wilcox-test has to be used
 
 shapiro.test(dataset$D5[which(dataset$D9IncYes1==c("No","Yes"))])
 
-# T-Test
-# If the p-value of the t-test is less than 0.05 or 5% (significance level), we can reject the Null hypothesis - both populations are not significant differently
-# If the p-value of the t-test is higher than 0.05 or 5% (significance level), we accept H0 - both populations are significant differently
+## T-Test
+# The Null hypothesis shows at higher than 0.05 or 5%  that both populations are significant differently
 
-t.test(x=dataset$D5, y=dataset$D9IncYes1)
 t.test(test$x[1,]$y, test$x[2,]$y, alternative = "two.sided") # H0 auch rejected
 
-# Wilcox-Test
-# The Wilcox-Test, also called Wilcoxon-Mann-Whitney-Test, U-Test or Wilcoxon rank-sum test, is used, when the requirements for a t-test for independent samples are not fulfilled. The Wilcox-Test can be used, when there is no normal distribution.
-# If the p-value of the Wilcox-Test is less than 0.05 or 5% (significance level), we can reject the Null hypothesis - both populations are not significant differently
-# If the p-value of the Wilcox-Test is higher than 0.05 or 5% (significance level), we accept H0 - both populations are significant differently
+## Wilcox-Test
+# The Wilcox-Test can be used when there is no normal distribution. The Null hypothesis shows at higher than 0.05 or 5%  that both populations are significant differently
 
 wilcox.test(test$x[1,]$y, test$x[2,]$y, alernative="two-sided")
 
@@ -312,8 +310,8 @@ wilcox.test(test$x[1,]$y, test$x[2,]$y, alernative="two-sided")
 
 ```
 
-## TODO - Boxplot und normal plor + log transformed numbers erklären
+We can see in all graphics, that the number of R&D personnel is greater for survey participants which are not incubator participants and normally around 2 employees. FOr participants, the number of R&D personnel is smaller and normally around 1 employee.
 
-The t-test (which should not be used, according to the Shapiro-Test) and Wilcox-test assumes that the R&D personel for participants and non-participants are not significantly different. We can reject in both tests this Null hypothesis, because both tests give a lower p-value than the significance level of 5%. Therefore, the R&D personnel of participants and non-participants are significant different. 
+The t-test (which should not be used, according to the Shapiro-Test) and Wilcox-test assumes that the R&D personnel for participants and non-participants are not significantly different. We can reject in both tests this Null hypothesis, because both tests give a lower p-value than the significance level of 5%. Therefore, the R&D personnel of participants and non-participants are significant different. 
 
 
