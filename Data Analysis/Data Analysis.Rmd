@@ -2,7 +2,9 @@
 title: "Assignment Data Analysis"
 author: "Kevin Saner, Phillip Gachnang, Raphael Denz"
 date: "18. 3. 2021"
-output: word_document
+output:
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
@@ -240,54 +242,78 @@ The chi-square test shows a p-value of `r chiresult$p.value`, this means we can 
 
 ## 2.4 Number of R+D personnel
 
-```{r}
+```{r, message=FALSE,warning=FALSE}
 
-## Grafiken
+## Histograms and boxplots
 
-hist(dataset$D5) ### HIER
-hist(log(dataset$D5)+1) ### HIER
-boxplot(dataset$D5) ### HIER
-boxplot(log(dataset$D5)+1) ### HIER
+hist(dataset$D5)
+hist(log(dataset$D5)+1)
+boxplot(dataset$D5)
+boxplot(log(dataset$D5)+1)
 
-# Quartile für Bowley-skeweness berechnen 
+# Quartile calculation for Bowley Skeweness 
 
-# ((Q3 - Q2) - (Q2 - Q1))/(Q3-A1)
-Q1 <- quantile(dataset$D5, prob=c(.5), na.rm=TRUE)  ###  https://www.programmingr.com/statistics/quartile/ 
-Q2 <- quantile(dataset$D5, prob=c(.25), na.rm=TRUE)
+# ((Q3 - Q2) - (Q2 - Q1))/(Q3 - Q1)
+# Skewness = 0 means that the curve is symmetrical
+# Skewness > 0 means the curve is positively skewed
+# Skewness < 0 means the curve is negatively skewed
+
+Q1 <- quantile(dataset$D5, prob=c(.25), na.rm=TRUE) 
+Q2 <- quantile(dataset$D5, prob=c(.5), na.rm=TRUE)
 Q3 <- quantile(dataset$D5, prob=c(.75), na.rm=TRUE)
 
-bowley <- ((Q3 - Q2) - (Q2 - Q1))/(Q3-Q1)
+bowley <- ((Q3 - Q2) - (Q2 - Q1))/(Q3 - Q1)
 bowley
-```
 
+```
+Using the histogram and boxplot for the distribution of R&D personnel, we can see in the normal graphics that the values are extremely squished in the direction of 0 and far distant outliers. Using log ("log(D5+1)"), we can improve the graphics with establishing a normal distribution. According to the new histogram and boxplot, we can identify that most values are almost centered around 2. Which means most survey participants have two R&D personnel.
+
+To further analyse the R&D personnel distribution, the Bowley Skeweness is calculated using the quartiles: 
+
+[(Q3 - Q2) - (Q2 - Q1)] / (Q3 - Q1)
+
+The result of the Bowley Skeweness tells us if the curve is symmetrical (Skeweness = 0), positively skewed (Skeweness > 0) or negatively skewed (Skeweness < 0). In this case, the skeweness is above 0, which indicates that the curve for the distribution of R&D personel is positively skewed. 
 
 ## 2.5 R+D personnel vs participation
 
-```{r}
-## Beispielcode:
-# 
-# Code:
-# shapiro.test(data$rent[which(data$nre=="non‐NRE")])
-# shapiro.test(data$rent[which(data$nre=="NRE")])
-# #normality is rejected in both groups, a wilcox‐test is appropriate
-# wilcox.test(data$rent~data$nre)
-# 
-# ### R&D person auf zwei gruppen aufgeteilt anschauen -> die inkubatoren und nicht-inkubatoren (Frage: nicht-umfrage-teilnehmer rausfiltenr oder reicht NA-Remove?) Aggregate für die gruppen nutzen
+```{r, message=FALSE,warning=FALSE}
 
-#shapiro.test(dataset$D5[which(dataset$D9IncYes1=="No")])
-  #dataset_D4_D9IncYes1$D9IncYes1=Responder/Yes/No Responder","Non-Responder"
-#shapiro.test(dataset$D5[which(dataset$D9IncYes1=="Yes")])
-
-# # YesList <- omit.na(c(dataset$D9IncYes1, exclude = "No,", na.rm=TRUE))
-# YesGroup <- aggregate(dataset, FUN="mean", data=dataset$D5, by=("Yes")) # by muss eine List haben
-# NoGroup <- aggregate(dataset, FUN="mean", data=dataset$D5, by=("No")) # by muss eine List haben
-
-
-  ## Funktioneller code:
 test = aggregate(dataset$D5, by=list(dataset$D9IncYes1), FUN=qqnorm, na.action = na.omit)
 boxplot(test$x[1,]$y, test$x[2,]$y, names = c("No", "Yes"))
+
+factorvar <- factor(c(dataset$D9IncYes1))
+plot(x=factorvar, y=dataset$D5)
+plot(x=factorvar, y=log(dataset$D5)+1)
+
 boxplot(log(test$x[1,]$y)+1, log(test$x[2,]$y)+1, names = c("No", "Yes"))
+
+# Shapiro-Test
+# P-value above 0.05 or 5% means it is normally distributed and the Null hypothesis is not rejected
+# When H0 is not rejected, we can use the t-test.
+# WHen H0 is rejected (no normal distribution), we wan use the Wilcox-test
+
+shapiro.test(dataset$D5[which(dataset$D9IncYes1==c("No","Yes"))])
+
+# T-Test
+# If the p-value of the t-test is less than 0.05 or 5% (significance level), we can reject the Null hypothesis - both populations are not significant differently
+# If the p-value of the t-test is higher than 0.05 or 5% (significance level), we accept H0 - both populations are significant differently
+
+t.test(x=dataset$D5, y=dataset$D9IncYes1)
+t.test(test$x[1,]$y, test$x[2,]$y, alternative = "two.sided") # H0 auch rejected
+
+# Wilcox-Test
+# The Wilcox-Test, also called Wilcoxon-Mann-Whitney-Test, U-Test or Wilcoxon rank-sum test, is used, when the requirements for a t-test for independent samples are not fulfilled. The Wilcox-Test can be used, when there is no normal distribution.
+# If the p-value of the Wilcox-Test is less than 0.05 or 5% (significance level), we can reject the Null hypothesis - both populations are not significant differently
+# If the p-value of the Wilcox-Test is higher than 0.05 or 5% (significance level), we accept H0 - both populations are significant differently
+
+wilcox.test(test$x[1,]$y, test$x[2,]$y, alernative="two-sided")
 
 
 
 ```
+
+## TODO - Boxplot und normal plor + log transformed numbers erklären
+
+The t-test (which should not be used, according to the Shapiro-Test) and Wilcox-test assumes that the R&D personel for participants and non-participants are not significantly different. We can reject in both tests this Null hypothesis, because both tests give a lower p-value than the significance level of 5%. Therefore, the R&D personnel of participants and non-participants are significant different. 
+
+
