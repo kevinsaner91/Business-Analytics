@@ -240,7 +240,7 @@ chiresult
 cV <- CramerV(con)
 cV
 ```
-As p-value of the chi-squered test of `r chiresult$p.value` is greater than the 0.05 significance level, we do not reject the null hypothesis that the satisfaction of the product development process is independent on the incubation program. According to the documentation, a Cramer's V in the range of [0, 0.3] is considered as weak and the result of a value of `r cV` is therefore considered as a weak. To conclude the two results, even if there is an dependency of the satisfaction of the product development process with the incubation program, this dependency seems to be weak.
+As p-value of the chi-squared test of `r chiresult$p.value` is greater than the 0.05 significance level, we do not reject the null hypothesis that the satisfaction of the product development process is independent on the incubation program. According to the documentation, a Cramer's V in the range of [0, 0.3] is considered as weak and the result of a value of `r cV` is therefore considered as a weak. To conclude the two results, even if there is an dependency of the satisfaction of the product development process with the incubation program, this dependency seems to be weak.
 
 ## 2.4 Number of R+D personnel
 ### 2.4a Graphical distribution of R&D personnel.
