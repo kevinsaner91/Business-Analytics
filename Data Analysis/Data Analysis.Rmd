@@ -271,8 +271,7 @@ boxplot(log(dataset$D5)+1, main="R&D distribution with log-numbers")
 
 TODO
 
-### 2.4b Graphical distribution of R&D personnel between incubators and non-participants.
-#### Bowley Skeweness
+### 2.4b Bowley Skeweness 
 *Calculate the Bowley Skeweness to see if the curve is skewed.*
 
 ```{r, message=FALSE,warning=FALSE}
