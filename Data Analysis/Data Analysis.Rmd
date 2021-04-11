@@ -344,7 +344,7 @@ With p-value < 2.2e-16, the Shapiro test is below 0.05 or 5%, which means the nu
 
 ## T-Test
 # The Null hypothesis shows at higher than 0.05 or 5%  that both populations are significant differently
-ttest <- t.test(test$x[1,]$y, test$x[2,]$y) # H0 auch rejected
+ttest <- t.test(test$x[1,]$y, test$x[2,]$y)
 ttest
 
 
