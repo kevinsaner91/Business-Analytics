@@ -82,7 +82,7 @@ To calculate the unit response rate only data is considered that is complete. In
 The measurement levels of the variables in section C & D are follows:
 
 * C1 - C4 are ratios
-* C 5 -7 are ordinally scaled variable
+* C5 - C7 are ordinally scaled variable
 * C8, C9 & D1 are ratios
 * D2 is a nominal variable
 * D3 is a nominal variable that uses one-hot encoding
