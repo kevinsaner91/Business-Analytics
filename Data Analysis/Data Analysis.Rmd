@@ -50,6 +50,7 @@ The above output shows that the dataset contains `r a[1]` observations and `r a[
 ```{r}
 names(dataset)
 ```
+
 The above command delivers the names of the columns in the data set. It can be seen that the names of the columns match the questions of the questionnaire. The data set contains no labels. Some of the data in the data set is stored as free text such as the product category (A1). Most of data, however, is stored as numerical data where it only becomes clear when looking at the questionnaire whether the data refers to qualitative or quantitative data. The below example marks an exception: 
 
 ```{r}
@@ -57,6 +58,7 @@ The above command delivers the names of the columns in the data set. It can be s
 head(dataset$A2)
 head(dataset$B1)
 ```
+
 Although, both questions A2 and B1 refer to a "Yes"- or "No"-question, the way the answers are stored look different. This due to a inconsistent encoding style.
 
 ## 1.3 Response
@@ -71,6 +73,7 @@ dataset <- subset(dataset,dataset$COMPLETE!="")
 100 /gross_sample_size * nrow(dataset)
 
 ```
+
 To calculate the unit response rate only data is considered that is complete. Incomplete data is identified using the column "Complete". This way a unit reponse rate of 41.55% is calculated, meaning that less than half the companies that were asked completed the questionnaire.
 
 ## 1.4 Measurement Levels and Missingness
@@ -121,9 +124,11 @@ dataset$C7 <- to_7_level_likert(dataset$C7)
 # example of the newly introduced factors
 levels(dataset$C5)
 ```
+
 The example shows the levels of the transformed variable C5.
 
 D2 and D9IncYes1 are nominal variables with two levels each. The variables are also transformed to factors and labels are added.
+
 ```{r}
 dataset$D2 <- factor(dataset$D2,
                      levels = c(1,2),
@@ -136,6 +141,7 @@ dataset$D9IncYes1 <- factor(dataset$D9IncYes1,
 summary(dataset$D2)
 summary(dataset$D9IncYes1)
 ```
+
 The output shows the count of occurrences per label. 
 
 ### 1.4b Missingness
@@ -148,6 +154,7 @@ dataset_c_d <- dataset[,grep("C1",colnames(dataset)):grep("D9EGov",colnames(data
 out <- table(sapply(dataset_c_d, is.na))
 out
 ```
+
 There are `r out[2]`  missing values in the data set. The values are distributed as follows among the variables:
 
 ```{r}
@@ -161,6 +168,7 @@ data.frame(colSums(is.na(dataset_c_d)))
 # contingency table
 table(is.na(dataset$D4),is.na(dataset$D9IncYes1))
 ```
+
 The result of the contigency tables shows that, 223 have answered both questions, 9 have answered neither D4 nor D9IncYes1, 10 have answered D4 but not D9IncYes1 and 4 have answered D9IncYes1 but not D4. To sum, there are only 23 companies that did not answer one of the questions, which relates to roughly 10% of responders.
 
 *Create a grouped boxplot to compare responders and non-responders.*
@@ -180,16 +188,18 @@ ggplot(dataset_D4_D9IncYes1, aes(x=D9IncYes1,y=D4)) + geom_boxplot(outlier.colou
 ```
 
 The median of the NA-group is close to 20, whereas the median of the responders is under 10, which indicates 
-a size difference of the companies when looking at the employees. Additionally, a wilcoxon test is done to test this hypothesis:
+a size difference of the companies when looking at the employees. Additionally, a Wilcoxon-Test is done to test this hypothesis:
+
 ```{r}
 # test for a statistically significant difference between responder and non-responder
 wilcox.test(dataset$D4[which(is.na(dataset$D9IncYes1))],dataset$D4[which(!is.na(dataset$D9IncYes1))])
 ```
+
 The Wilcoxon-Test shows we can reject the null hypothesis, which means that companies that did not respond to D9IncYes1 have more employees.
 
 # 2 Analysis
 
-## 2.1 Proportion of Programme 
+## 2.1 Proportion of Program 
 
 *Calculate the proportion and 95% confidence interval for incubator participants.*
 
@@ -203,11 +213,12 @@ D9IncYes
 
 prop.test(D9IncYes,D9IncAll) 
 ```
-The output shows that there are 227 companies that responded to question D9IncYes1, of which 68 answered "yes - they did participate in an incubator programme". This results in a proportion of approximately 30% with a 95% confidence interval between 24,2% and 36,4%. In other words, we are 95% confident that the true proportion of survey participants that participated in an incubator programme lies between 24,2% and 36,4%.  
+
+The output shows that there are 227 companies that responded to question D9IncYes1, of which 68 answered "yes - they did participate in an incubator program". This results in a proportion of approximately 30% with a 95% confidence interval between 24,2% and 36,4%. In other words, we are 95% confident that the true proportion of survey participants that participated in an incubator program lies between 24,2% and 36,4%.  
 
 
 ## 2.2 Satisfaction with product development process
-*Analyse the satisfaction with the product development process (C5) using a barchart.*
+*Analyze the satisfaction with the product development process (C5) using a barchart.*
 ```{r}
 barplot(table(dataset$C5), main="Barchart of Satisfaction", xlab="Satisfaction", ylab="Frequency")
 
@@ -217,6 +228,7 @@ barplot(table(dataset$C5), main="Barchart of Satisfaction", xlab="Satisfaction",
 a = min(subset(dataset$C5,!is.na(dataset$C5)))
 b = max(subset(dataset$C5,!is.na(dataset$C5)))
 ```
+
 The barchart shows in this case a histogram, the frequency distribution of product development process satisfaction of all participants. The plot depicts the comparison of the satisfaction ratio from `r names(table(dataset$C5)[a])` to `r names(table(dataset$C5)[b])` in `r nlevels(dataset$C5)` levels. The frequency distribution leans towards `r names(table(dataset$C5)[b])`. The highest frequency with `r table(dataset$C5)[b]` participants are `r names(table(dataset$C5)[b])` while the lowest frequency with only `r table(dataset$C5)[a]` participants `r names(table(dataset$C5)[a])` with the satisfaction of their product development process. We can conclude here, that most are at least satisfied by their product development process.
 
 ## 2.3 Association of incubator participation and satisfaction with the product development process
@@ -240,33 +252,36 @@ chiresult
 cV <- CramerV(con)
 cV
 ```
-As p-value of the chi-squared test of `r chiresult$p.value` is greater than the 0.05 significance level, we do not reject the null hypothesis that the satisfaction of the product development process is independent on the incubation program. According to the documentation, a Cramer's V in the range of [0, 0.3] is considered as weak and therefore the result of a value of `r cV` is considered weak. To conclude the two results, even if there is an dependency of the satisfaction of the product development process with the incubation program, this dependency seems to be weak.
+
+As p-value of the chi-squared test of `r chiresult$p.value` is greater than the 0.05 significance level, we do not reject the null hypothesis that the satisfaction of the product development process is independent on the incubation program. According to the documentation, a Cramer's V in the range of [0, 0.3] is considered as weak and therefore the result of a value of `r cV` is considered weak associated. To conclude the two results, even if there is an dependency of the satisfaction of the product development process with the incubation program, this dependency seems to be weak.
 
 ## 2.4 Number of R+D personnel
 ### 2.4a Graphical distribution of R&D personnel.
 #### Quantile-Quantile Plot
 
-*Create a Histogram to compare the R&D personnel of incubator and non-participants.*
+*Create a histogram to compare the R&D personnel of incubator participants and non-participants.*
 
 ```{r, message=FALSE,warning=FALSE}
 hist(dataset$D5, main="R&D distribution")
 hist(log(dataset$D5)+1, main="R&D distribution with log-numbers")
 ```
 
-To analyze the distribution of R&D personnel, a Histogram is used. As visible, most companies have very few R&D personnel compared to the companies with the most personnel. Most have around 1 to 3 employees, with a heavy focus on 1. Only very few companies have more employees, however, this goes up to 250 R&D employees. The right-skew of the data is to extreme to receive a normal distribution even when applying the log-transformation.
+To analyze the distribution of R&D personnel, a histogram is used. As visible, most companies have very few R&D personnel compared to the companies with the most personnel. Most have around 1 to 3 employees, with a heavy focus on 1. Only very few companies have more employees, however, this goes up to 250 R&D employees. The right-skew of the data is to extreme to receive a normal distribution even when applying the log-transformation.
 
 #### Boxplot
-*Create a Boxplot to compare the R&D personnel of incubator and non-participants.*
+*Create a boxplot to compare the R&D personnel of incubator participants and non-participants.*
 
 ```{r, message=FALSE,warning=FALSE}
 boxplot(dataset$D5, main="R&D distribution")
 ```
-Since the data might not be normally distributed it is diffcult to read the boxplot. Therefore a log-transformed boxplot is created.
+
+Since the data might not be normally distributed it is difficult to read the boxplot. Therefore a log-transformed boxplot is created.
+
 ```{r, message=FALSE,warning=FALSE}
 boxplot(log(dataset$D5)+1, main="R&D distribution with log-numbers")
 ```
 
-In the non-log based boxplot, the distribution is extremely shifted and makes if very difficult to read the plot. However, we are easily able to identify that the majority of companies only have very few R&D employees and only few have a lot of R&D personnel.
+In the non-log based boxplot, the distribution is extremely shifted and makes if very difficult to read the plot. However, in the log-based boxplot we are easily able to identify that the majority of companies only have very few R&D employees and only few have a lot of R&D personnel. The majority of companies has between 1 and 5 R&D employees.
 
 ### 2.4b Bowley Skeweness 
 *Calculate the Bowley Skeweness to see if the curve is skewed.*
@@ -294,24 +309,24 @@ The result of the skeweness is `r bowley` and as it is above 0, we conclude that
 ### 2.5a Graphical distribution of R&D personnel between incubators and non-participants.
 #### Quantile-Quantile Plot
 
-*Create a Normal plot to compare the R&D personnel of incubator and non-participants.*
+*Create a normal plot to compare the R&D personnel of incubator participants and non-participants.*
 
 ```{r, message=FALSE,warning=FALSE}
-### QQPlot without NA's
+## QQPlot without NA's
 test = aggregate(dataset$D5, by=list(dataset$D9IncYes1), FUN="qqnorm", na.action = na.omit, main="Quantile-Quantile Plots")
 ```
 
-The U-shape of the Q-Q-plots indicate that we are not dealing with a normal distribution, neither in incubator participants nor in non-participants.
+The U-shape of the Q-Q-Plots indicate that we are not dealing with a normal distribution, neither in incubator participants nor in non-participants.
 
 #### Boxplot
-*Create a grouped boxplot to compare the R&D personnel of incubator and non-participants.*
+*Create a grouped boxplot to compare the R&D personnel of incubator participants and non-participants.*
 
 ```{r, message=FALSE,warning=FALSE}
 # Boxplot outliers are not drawn
 boxplot(test$x[1,]$y, test$x[2,]$y, names = c("Non-Participant", "Participant"), main="R&D personnel distribution")
 ```
 
-Since the data is not normally distributed it is diffcult to read the boxplot. Therefore a log-transformed boxplot is created.
+Since the data is not normally distributed it is difficult to read the boxplot. Therefore a log-transformed boxplot is created.
 
 ```{r, message=FALSE,warning=FALSE}
 boxplot(log(test$x[1,]$y)+1, log(test$x[2,]$y)+1, names = c("Non-Participant", "Participant"), main="R&D personnel distribution with log-numbers")
@@ -322,12 +337,12 @@ From the log-transformed boxplot it can be seen that number of R&D staff seems t
 ### 2.5b Hypothesis tests
 #### Shapiro-Test
 
-*Calculate the Shapiro-Test to know if the T-Test or the Wilcoxon-Test is applicable.*
+*Calculate the Shapiro-Test to know if the t-test or the Wilcoxon-Test is applicable.*
 
 ```{r, message=FALSE,warning=FALSE}
   
 ## Shapiro-Test
-# P-value above 0.05 or 5% means it is normally distributed, the Null hypothesis is not rejected and the t-test can be used. Else the Wilcoxon-test has to be used
+# P-value above 0.05 or 5% means it is normally distributed, the Null hypothesis is not rejected and the t-test can be used. Else the Wilcoxon-test has to be used.
 
 shapiro <- shapiro.test(dataset$D5[which(dataset$D9IncYes1==c("No","Yes"))])
 shapiro
@@ -335,22 +350,22 @@ shapiro
 
 ```
 
-With p-value < 2.2e-16, the Shapiro test is below 0.05 or 5%, which means the null hypothesis has to be rejected which means the t-test is not seen as an applicable test, since it is not applicable on data that is not normally distributed. Instead we recommend to use the Wilcoxon-Test, which is able to handle such situations.
+With a p-value < 2.2e-16, the Shapiro test is below 0.05 or 5%, which means the null hypothesis has to be rejected which means the t-test is not seen as an applicable test, since it is not applicable on data that is not normally distributed. Instead we recommend to use the Wilcoxon-Test, which is able to handle such situations.
 
-#### T-Test
-*Calculate the T-Test*
+#### T-test
+*Calculate the t-test*
 
 ```{r, message=FALSE,warning=FALSE}
 
-## T-Test
-# The Null hypothesis shows at higher than 0.05 or 5%  that both populations are significant differently
+## T-test
+# The null hypothesis shows at higher than 0.05 or 5%  that both populations are significant differently
 ttest <- t.test(test$x[1,]$y, test$x[2,]$y)
 ttest
 
 
 ```
 
-When we apply the two sample t-test despite knowing, we should not use it (see section "T-Test"), we receive a p-value of p-value = p-value = 0.01223. It lies below 0.05 or 5%, this indicates that the null hypothesis should be rejected and the two populations are significantly different.
+When we apply the two sample t-test despite knowing, we should not use it (see section "T-test"), we receive a p-value of 0.01223. It lies below 0.05 or 5%, this indicates that the null hypothesis should be rejected and the two populations are significantly different.
 
 #### Wilcoxon-Test
 *Calculate the Wilcoxon-Test*
@@ -358,11 +373,11 @@ When we apply the two sample t-test despite knowing, we should not use it (see s
 ```{r, message=FALSE,warning=FALSE}
 
 ## Wilcoxon-Test
-# The Wilcoxon-Test can be used when there is no normal distribution. The Null hypothesis shows at higher than 0.05 or 5%  that both populations are significant differently
+# The Wilcoxon-Test can be used when there is no normal distribution. The null hypothesis shows at higher than 0.05 or 5%  that both populations are significant differently
 wilcox.test(test$x[1,]$y, test$x[2,]$y, alernative="two-sided")
 ```
 
-The Wilcoxon-Test helps to analyse data which is not normally distributed. Applied we receive the p-value = 0.02956, which means that we reject the null hypothesis, as the values lies below 0.05 or 5%. This means that amount of R&D staff for non-participants of the incubator program is significantly higher than for the participants. Even though, the data is not normally distributed the t-test still gives the correct result.
+The Wilcoxon-Test helps to analyze data which is not normally distributed. Applied we receive a p-value of 0.02956, which means that we reject the null hypothesis, as the values lies below 0.05 or 5%. This means that amount of R&D staff for non-participants of the incubator program is significantly higher than for the participants. Even though, the data is not normally distributed the t-test still gives the correct result.
 
 
 THE END!
