@@ -185,7 +185,7 @@ a size difference of the companies when looking at the employees. Additionally, 
 # test for a statistically significant difference between responder and non-responder
 wilcox.test(dataset$D4[which(is.na(dataset$D9IncYes1))],dataset$D4[which(!is.na(dataset$D9IncYes1))])
 ```
-The Wicoxon-Test shows we can reject the null hypothesis, which means that companies that did not respond to D9IncYes1 have more employees.
+The Wilcoxon-Test shows we can reject the null hypothesis, which means that companies that did not respond to D9IncYes1 have more employees.
 
 # 2 Analysis
 
