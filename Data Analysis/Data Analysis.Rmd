@@ -187,13 +187,14 @@ dataset_D4_D9IncYes1$D9IncYes1 <- factor(dataset_D4_D9IncYes1$D9IncYes1,
 ggplot(dataset_D4_D9IncYes1, aes(x=D9IncYes1,y=D4)) + geom_boxplot(outlier.colour = NA) +  coord_cartesian(ylim = c(0, 60)) + xlab("Responder/Non-Responder") + ylab("Number of employees")
 
 ```
+
 The median of the NA-group is close to 20, whereas the median of the responders is under 10, which indicates 
 a size difference of the companies when looking at the employees. Additionally, a wilcoxon test is done to test this hypothesis:
 ```{r}
 # test for a statistically significant difference between responder and non-responder
 wilcox.test(dataset$D4[which(is.na(dataset$D9IncYes1))],dataset$D4[which(!is.na(dataset$D9IncYes1))])
 ```
-The Wicoxon-Test we can reject the null hypothesis, which means that companies that did not respond to D9IncYes1 have more employees.
+The Wicoxon-Test shows we can reject the null hypothesis, which means that companies that did not respond to D9IncYes1 have more employees.
 
 # 2 Analysis
 
@@ -241,14 +242,33 @@ cV
 As p-value of the chi-squered test of `r chiresult$p.value` is greater than the 0.05 significance level, we do not reject the null hypothesis that the satisfaction of the product development process is independent on the incubation program. According to the documentation, a Cramer's V in the range of [0, 0.3] is considered as weak and the result of a value of `r cV` is therefore considered as a weak. To conclude the two results, even if there is an dependency of the satisfaction of the product development process with the incubation program, this dependency seems to be weak.
 
 ## 2.4 Number of R+D personnel
+### 2.4a Graphical distribution of R&D personnel between incubators and non-participants.
+#### Quartile-Quartile Plot
+
+*Create a Quartile-Quartile Plot to compare the R&D personnel of incubator and non-participants.*
 
 ```{r, message=FALSE,warning=FALSE}
 
 # Outliers are drawn to show the differences
 hist(dataset$D5, main="R&D distribution")
 hist(log(dataset$D5)+1, main="R&D distribution with log-numbers")
+
+
+```
+
+TODO
+
+```{r, message=FALSE,warning=FALSE}
+
 boxplot(dataset$D5, main="R&D distribution")
 boxplot(log(dataset$D5)+1, main="R&D distribution with log-numbers")
+
+
+```
+
+TODO
+
+```{r, message=FALSE,warning=FALSE}
 
 ## Quartile calculation for Bowley Skeweness 
 Q1 <- quantile(dataset$D5, prob=c(.25), na.rm=TRUE) 
@@ -259,6 +279,7 @@ bowley <- ((Q3 - Q2) - (Q2 - Q1))/(Q3 - Q1)
 bowley
 
 ```
+
 Using the histogram and boxplot for the distribution of R&D personnel, we can see in the normal graphics that the values are extremely squished in the direction of 0 and far distant outliers. Using log ("log(D5+1)"), we can improve the graphics with establishing a normal distribution. According to the new histogram and boxplot, we can identify that most values are almost centered around 2. Which means most survey participants have two R&D personnel.
 
 To further analyse the R&D personnel distribution, the Bowley Skeweness is calculated using the quartiles: 
@@ -268,40 +289,93 @@ To further analyse the R&D personnel distribution, the Bowley Skeweness is calcu
 The result of the Bowley Skeweness tells us if the curve is symmetrical (Skeweness = 0), positively skewed (Skeweness > 0) or negatively skewed (Skeweness < 0). In this case, the skeweness of `r bowley` is above 0, which indicates that the curve for the distribution of R&D personel is positively skewed. 
 
 ## 2.5 R+D personnel vs participation
+### 2.5a Graphical distribution of R&D personnel between incubators and non-participants.
+#### Quartile-Quartile Plot
+
+*Create a Quartile-Quartile Plot to compare the R&D personnel of incubator and non-participants.*
 
 ```{r, message=FALSE,warning=FALSE}
 
 ### Frage an Kevin: Gibt es eine alternative zu "FUN-qqnorm", damit keine Grafik generiert wird?" In der Aufgabe steht, wir sollen aggregate mit qqnorm nutzen. Den Quantile-Quantile Plot brauchen wir jedoch nicht gezeichnet, wir brauchen nur den Wert von test für die Boxplots.
-test = aggregate(dataset$D5, by=list(dataset$D9IncYes1), FUN="qqnorm", na.action = na.omit, main="Quantile-Quantile Plots", xlab=c("Participants","Non-Participants"), ylab="R&D Personel")
-#boxplot(test$x[1,]$y, test$x[2,]$y, names = c("No", "Yes"))
+test = aggregate(dataset$D5, by=list(dataset$D9IncYes1), FUN="qqnorm", na.action = na.omit, main="Quantile-Quantile Plots")
 
+
+```
+
+TODO
+
+#### Boxplot
+*Create a grouped boxplot to compare the R&D personnel of incubator and non-participants.*
+
+```{r, message=FALSE,warning=FALSE}
+  
 # Boxplot outliers are not drawn
-boxplot(test$x[1,]$y, test$x[2,]$y, names = c("No-Participant", "Participant"), outline=FALSE, main="R&D personell distribution")
+boxplot(test$x[1,]$y, test$x[2,]$y, names = c("Non-Participant", "Participant"), outline=FALSE, main="R&D personell distribution")
 boxplot(log(test$x[1,]$y)+1, log(test$x[2,]$y)+1, names = c("Non-Participant", "Participant"), outline=FALSE, main="R&D personell distribution with log-numbers")
 
-### Frage an Kevin: In der AUfgabe fragen sie zwar nach "normal plots", es macht aber keinen Unterschied zum Boxplot. Vielleicht haben sie geplant hier den QQ-PLot einzusetzen und es einfach normal Plot genannt?
+
+```
+
+TODO
+
+#### Normal plot
+*Create a grouped normal plot to compare the R&D personnel of responders and non-responders.*
+
+```{r, message=FALSE,warning=FALSE}
+
+### Frage an Kevin: In der Aufgabe fragen sie zwar nach "normal plots", es macht aber keinen Unterschied zum Boxplot. Vielleicht haben sie geplant hier den QQ-PLot einzusetzen und es einfach normal Plot genannt?
 # Normal plot outliers are not drawn
 factorvar <- factor(c(dataset$D9IncYes1))
-plot(x=factorvar, y=dataset$D5, names = c("No-Participant", "Participant"), outline=FALSE, main="R&D personell distribution")
+plot(x=factorvar, y=dataset$D5, names = c("Non-Participant", "Participant"), outline=FALSE, main="R&D personell distribution")
 plot(x=factorvar, y=log(dataset$D5)+1, names = c("Non-Participant", "Participant"), outline=FALSE, main="R&D personell distribution with log-numbers")
 
 
+```
+
+TODO
+
+### 2.5b Measurement Levels
+#### Shapiro-Test
+
+*Calculate the Shapiro-Test to know if the T-Test or the Wilcox-Test is applicable.*
+
+```{r, message=FALSE,warning=FALSE}
+  
 ## Shapiro-Test
 # P-value above 0.05 or 5% means it is normally distributed,the Null hypothesis is not rejected and the t-test can be used. Else the Wilcox-test has to be used
 
 shapiro.test(dataset$D5[which(dataset$D9IncYes1==c("No","Yes"))])
 
+
+```
+
+TODO
+
+#### T-Test
+*Calculate the T-Test*
+
+```{r, message=FALSE,warning=FALSE}
+
 ## T-Test
 # The Null hypothesis shows at higher than 0.05 or 5%  that both populations are significant differently
 t.test(test$x[1,]$y, test$x[2,]$y) # H0 auch rejected
+
+
+```
+
+TODO
+
+#### Wilcox-Test
+*Calculate the Wilcox-Test*
+
+```{r, message=FALSE,warning=FALSE}
 
 ## Wilcox-Test
 # The Wilcox-Test can be used when there is no normal distribution. The Null hypothesis shows at higher than 0.05 or 5%  that both populations are significant differently
 wilcox.test(test$x[1,]$y, test$x[2,]$y, alernative="two-sided")
 
-
-
 ```
+
 
 We can see in all graphics, that the number of R&D personnel is greater for survey participants which are not incubator participants and normally around 2 employees. FOr participants, the number of R&D personnel is smaller and normally around 1 employee.
 
