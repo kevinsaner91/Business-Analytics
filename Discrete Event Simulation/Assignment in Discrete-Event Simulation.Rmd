@@ -34,6 +34,7 @@ c) with exponentially distributed interarrival times with expected value 120 sec
 
 # Preliminaries
 ```{r message=FALSE, warning=FALSE}
+rm(list = ls()) 
 set.seed(3)
 library(simmer)
 library(simmer.plot)
@@ -99,7 +100,15 @@ All further modeling aspects are briefly described and illustrated in the simula
 
 Text Description missing
 
-```{r}
+
+## CASE A1  
+
+- Customers arrive with fixed interarrival times of 120 seconds
+- The queues are chosen with a round robin method
+- The way to the service station is between the queue and the actual service station. Thus, the server is blocked as soon as the customer served the queue
+- The service time is uniformly distributed between 300 and 400 seconds
+
+```{r warning=FALSE}
 service_system <- simmer()
 #define the trajectory for Cases A1, B1, C1
 customer <- trajectory("serve customer") %>%
@@ -115,24 +124,11 @@ customer <- trajectory("serve customer") %>%
   log_("customer served")%>%
   log_(function() {paste("Finished: ", now(service_system))})
 
-# define the service system for Cases A1, B1, C1
 service_system <-
   simmer("service_system") %>%
   add_resource("service_station_1", 1) %>% 
   add_resource("service_station_2", 1) %>% 
-  add_resource("service_station_3", 1) 
-```
-
-
-## CASE A1  
-
-- Customers arrive with fixed interarrival times of 120 seconds
-- The queues are chosen with a round robin method
-- The way to the service station is between the queue and the actual service station. Thus, the server is blocked as soon as the customer served the queue
-- The service time is uniformly distributed between 300 and 400 seconds
-
-```{r warning=FALSE}
-service_system <- service_system %>% 
+  add_resource("service_station_3", 1) %>% 
   add_generator("Customer", customer, from_to(0, run_time, function() {fix_interarrival_time}))
 ```
 
@@ -158,7 +154,6 @@ Calculation of the averaged customers served per hour:
 ```{r}
 results_a1 <- c(length(result$finished==TRUE)/4/3)
 customers_served <- length(result$finished==TRUE)/4/3
-#customers_served
 ```
 Calculation of the occupation of the service stations:
 ```{r}
@@ -179,8 +174,6 @@ Calculation of the throughput time
 results_a1 <- c(results_a1,mean(result$activity_time+result$waiting_time))
 ```
 
-
-\newpage
 ## CASE B1
 
 - Customers arrive with uniformly distributed interarrival times 
@@ -189,7 +182,14 @@ results_a1 <- c(results_a1,mean(result$activity_time+result$waiting_time))
 - The service time is uniformly distributed between 300 and 400 seconds
 
 ```{r warning=FALSE}
-service_system <- service_system %>% add_generator("Customer", customer, from_to(0, run_time, function() {runif(1, min = unif_interarrval_time_lwr, max = unif_interarrval_time_upr)}))
+service_system <- simmer()
+
+service_system <-
+  simmer("service_system") %>%
+  add_resource("service_station_1", 1) %>% 
+  add_resource("service_station_2", 1) %>% 
+  add_resource("service_station_3", 1) %>% 
+  add_generator("Customer", customer, from_to(0, run_time, function() {runif(1, min = unif_interarrval_time_lwr, max = unif_interarrval_time_upr)}))
 
 ```
 
@@ -198,7 +198,7 @@ service_system %>% run(until = run_time)
 result <- data.frame(service_system %>%
   get_mon_arrivals() %>%
   transform(waiting_time = end_time - start_time - activity_time) %>%
-  transform(actual_service_time = activity_time-25)
+  transform(actual_service_time = activity_time-timeout)
   )
 
 merged_results <- merge(result,get_mon_resources(service_system), by = "time", "start_time")
@@ -210,34 +210,18 @@ arrivals_b1 <- get_mon_arrivals(service_system)
 resources_b1 <- get_mon_arrivals(service_system)
 ```
 
-Calculation of the averaged customers served per hour:
-```{r}
+```{r include=FALSE}
 results_b1 <- c(length(result$finished==TRUE)/4/3)
 customers_served <- length(result$finished==TRUE)/4/3
-#customers_served
-```
-
-Calculation of the occupation of the service stations:
-```{r}
 results_b1 <- c(results_b1,sum(filtered_1$actual_service_time)/(run_time),
                   sum(filtered_2$actual_service_time)/(run_time),
                   sum(filtered_3$actual_service_time)/(run_time))
-```
-
-Calculation of the queue means:
-```{r}
 results_b1 <- c(results_b1, mean(filtered_1$queue),
                   mean(filtered_2$queue),
                   mean(filtered_3$queue))
-```
-
-Calculation of the throughput time
-```{r}
 results_b1 <- c(results_b1,mean(result$activity_time+result$waiting_time))
 ```
 
-
-\newpage
 ## CASE C1
 Short description:  
 
@@ -248,7 +232,14 @@ Short description:
 
 
 ```{r warning=FALSE}
-service_system <- service_system %>% add_generator("Customer", customer, from_to(0, run_time, function() {rexp(1, rate = exp_interarrival_time)}))
+service_system <- simmer()
+
+service_system <-
+  simmer("service_system") %>%
+  add_resource("service_station_1", 1) %>% 
+  add_resource("service_station_2", 1) %>% 
+  add_resource("service_station_3", 1) %>% 
+  add_generator("Customer", customer, from_to(0, run_time, function() {rexp(1, rate = exp_interarrival_time)}))
 ```
 
 ```{r message=FALSE, warning=FALSE, include=TRUE, echo=T, results='hide'}
@@ -257,7 +248,7 @@ service_system %>% run(until = run_time)
 result <- data.frame(service_system %>%
   get_mon_arrivals() %>%
   transform(waiting_time = end_time - start_time - activity_time) %>%
-  transform(actual_service_time = activity_time-25)
+  transform(actual_service_time = activity_time-timeout)
   )
 merged_results <- merge(result,get_mon_resources(service_system), by = "time", "start_time")
 filtered_1 <- filter(merged_results,resource == "service_station_1")
@@ -268,35 +259,20 @@ arrivals_c1 <- get_mon_arrivals(service_system)
 resources_c1 <- get_mon_arrivals(service_system)
 ```
 
-Calculation of the averaged customers served per hour:
-```{r}
+```{r include=FALSE}
 results_c1 <- c(length(result$finished==TRUE)/4/3)
 customers_served <- length(result$finished==TRUE)/4/3
-#customers_served
-```
 
-Calculation of the occupation of the service stations:
-```{r}
 results_c1 <- c(results_c1,sum(filtered_1$actual_service_time)/(run_time),
                   sum(filtered_2$actual_service_time)/(run_time),
                   sum(filtered_3$actual_service_time)/(run_time))
-```
-
-Calculation of the queue means:
-```{r}
 results_c1 <- c(results_c1, mean(filtered_1$queue),
                   mean(filtered_2$queue),
                   mean(filtered_3$queue))
-```
-
-Calculation of the throughput time:
-```{r}
 results_c1 <- c(results_c1,mean(result$activity_time+result$waiting_time))
 ```
 
-## Reviewed until here from KEVIN !!!
 
-\newpage
 # Scenario 2A
 ![Simulation Model for Case 2a](./Case2a.png)
 
@@ -315,43 +291,29 @@ service_system <- simmer()
 customer <-
   trajectory("serve customer") %>%
   log_("customer arrival") %>%
-  ## setting the start time for logging purposes
   set_attribute("start_time", function() {now(service_system)}) %>%
   seize("service_station") %>%
   log_(function() {paste("Waited: ", now(service_system) - get_attribute(service_system, "start_time"))}) %>%
   log_("Customer moves to the service station") %>%
-  timeout(25) %>% 
+  timeout(timeout) %>% 
   log_("customer arrival service station") %>%
-  ## timeout is the service time which is uniformly distributed between 220 and 300
-  timeout(function() {runif(1, min=220, max=300)}) %>%
+  timeout(function() {runif(1, min=service_time_lwr, max=service_time_upr)}) %>%
   release("service_station") %>%
   log_("customer served")%>%
   log_(function() {paste("Finished: ", now(service_system))})
   
 service_system <-
   simmer("service_system") %>%
-  ## service system with a capacity of 3 and a single queue
   add_resource("service_station", 3) %>% 
-  ## customer arrival every 90 seconds until 4h -> run_timesec
-  add_generator("Customer", customer, from_to(0, run_time, function() {90}))
-
-  # Code for analysis (suppressed)
-
-# service_system %>% run(until = run_time)
-# result <- data.frame(service_system %>%
-#   get_mon_arrivals() %>%
-#   transform(waiting_time = end_time - start_time - activity_time) %>%
-#   transform(actual_service_time = activity_time-25)
-#   )
-# result <- merge(result, get_mon_resources(service_system), by = "time", "start_time")
+  add_generator("Customer", customer, from_to(0, run_time, function() {fix_interarrival_time}))
 ```
 
-```{r message=TRUE, warning=FALSE, include=FALSE}
+```{r message=FALSE, warning=FALSE, include=TRUE, echo=T, results='hide'}
 service_system %>% run(until = run_time)
 result <- data.frame(service_system %>%
   get_mon_arrivals() %>%
   transform(waiting_time = end_time - start_time - activity_time) %>%
-  transform(actual_service_time = activity_time-25)
+  transform(actual_service_time = activity_time-timeout)
   )
 result <- merge(result, get_mon_resources(service_system), by = "time", "start_time")
 
@@ -359,84 +321,42 @@ arrivals_a2a <- get_mon_arrivals(service_system)
 resources_a2a <- get_mon_arrivals(service_system)
 ```
 
-Calculation of the averaged customers served per hour:
-```{r}
+```{r include=FALSE}
 results_a2a <- c(length(result$finished==TRUE)/4/3)
 customers_served <- length(result$finished==TRUE)/4/3
-#customers_served
-```
 
-Calculation of the occupation of the service stations: (3 times the same value to meet the data frame length for later joins)
-```{r}
 results_a2a <- c(results_a2a,sum(result$actual_service_time)/(run_time*3),
                   sum(result$actual_service_time)/(run_time*3),
                   sum(result$actual_service_time)/(run_time*3))
-```
-
-Calculation of the queue means: (3 times the same value to meet the data frame length for later joins)
-```{r}
 results_a2a <- c(results_a2a, mean(result$queue),
                   mean(result$queue),
                   mean(result$queue))
-```
-
-Calculation of the throughput time:(3 times the same value to meet the data frame length for later joins)
-```{r}
 results_a2a <- c(results_a2a,mean(result$activity_time+result$waiting_time))
 ```
 
-\newpage
 ## CASE B2A
 Short description:  
 
 - Customers arrive with interarrival times which are uniformly distributed between 60 and 120 seconds
 - Common queue before the way to the service station
 - The way to the service station is between the queue and the actual service station. So, the block of the service station is already done as soon as the customer served the queue and gets on the way to the service station
-- The service times are uniformly distributed between 220sec and 300sec
+- The service times are uniformly distributed between 300 and 400 seconds
 
 ```{r}
 service_system <- simmer()
 
-customer <-
-  trajectory("serve customer") %>%
-  log_("customer arrival") %>%
-  ## setting the start time for logging purposes
-  set_attribute("start_time", function() {now(service_system)}) %>%
-  seize("service_station") %>%
-  log_(function() {paste("Waited: ", now(service_system) - get_attribute(service_system, "start_time"))}) %>%
-  log_("Customer moves to service station") %>%
-  timeout(25) %>% 
-  log_("customer arrival at the service station") %>%
-  ## timeout is the service time which is uniformly distributed between 220 and 300
-  timeout(function() {runif(1, min=220, max=300)}) %>%
-  release("service_station") %>%
-  log_("customer served")
-#  log_(function() {paste("Finished: ", now(service_system))})
-
 service_system <-
   simmer("service_system") %>%
-  ## service system with a capacity of 3 and a single queue
   add_resource("service_station", 3) %>% 
-  ## customer arrival in times uniformly distributed between 60 and 120 seconds until 4h -> run_timesec
-  add_generator("Customer", customer, from_to(0, run_time, function() {runif(1, min = 60, max = 120)}))
-
-  # Code for analysis (suppressed)
-
-# service_system %>% run(until = run_time)
-# result <- data.frame(service_system %>%
-#   get_mon_arrivals() %>%
-#   transform(waiting_time = end_time - start_time - activity_time) %>%
-#   transform(actual_service_time = activity_time-25)
-#   )
-# result <- merge(result, get_mon_resources(service_system), by = "time", "start_time")
+  add_generator("Customer", customer, from_to(0, run_time, function() {runif(1, min = unif_interarrval_time_lwr, max = unif_interarrval_time_upr)}))
 ```
 
-```{r include=FALSE}
+```{r message=FALSE, warning=FALSE, include=TRUE, echo=T, results='hide'}
 service_system %>% run(until = run_time)
 result <- data.frame(service_system %>%
   get_mon_arrivals() %>%
   transform(waiting_time = end_time - start_time - activity_time) %>%
-  transform(actual_service_time = activity_time-25)
+  transform(actual_service_time = activity_time-timeout)
   )
 result <- merge(result, get_mon_resources(service_system), by = "time", "start_time")
 
@@ -444,32 +364,20 @@ arrivals_b2a <- get_mon_arrivals(service_system)
 resources_b2a <- get_mon_arrivals(service_system)
 ```
 
-Calculation of the averaged customers served per hour:
-```{r}
+```{r include=FALSE}
 results_b2a <- c(length(result$finished==TRUE)/4/3)
 customers_served <- length(result$finished==TRUE)/4/3
-#customers_served
-```
 
-Calculation of the occupation of the service stations: (3 times the same value to meet the data frame length for later joins)
-```{r}
 results_b2a <- c(results_b2a,sum(result$actual_service_time)/(run_time*3),
                   sum(result$actual_service_time)/(run_time*3),
                   sum(result$actual_service_time)/(run_time*3))
-```
-
-Calculation of the queue means:(3 times the same value to meet the data frame length for later joins)
-```{r}
 results_b2a <- c(results_b2a, mean(result$queue),
                   mean(result$queue),
                   mean(result$queue))
-```
-This queue would would rise to infinity.
-
-Calculation of the throughput time:
-```{r}
 results_b2a <- c(results_b2a,mean(result$activity_time+result$waiting_time))
 ```
+
+#Reviewed until here!!!
 
 \newpage
 ## CASE C2A
@@ -478,41 +386,15 @@ Short description:
 - Customers arrive with exponentially distributed interarrival times with expected value 90 sec
 - Common queue before the way to the service station
 - The way to the service station is between the queue and the actual service station. So, the block of the service station is already done as soon as the customer served the queue and gets on the way to the service station
-- The service times are uniformly distributed between 220sec and 300sec
+- The service times are uniformly distributed between 300 and 400 seconds
 
 ```{r}
 service_system <- simmer()
 
-customer <- trajectory("serve customer") %>%
-  log_("customer arrival") %>%
-  ## setting the start time for logging purposes
-  set_attribute("start_time", function() {now(service_system)}) %>%
-  seize("service_station") %>%
-  log_(function() {paste("Waited: ", now(service_system) - get_attribute(service_system, "start_time"))}) %>%
-  log_("customer arrival service station") %>%
-  timeout(25) %>% 
-   ## timeout is the service time which is uniformly distributed between 220 and 300
-  timeout(function() {runif(1, min=220, max=300)}) %>%
-  release("service_station") %>%
-  log_("customer served")%>%
-  log_(function() {paste("Finished: ", now(service_system))})
-
 service_system <-
   simmer("service_system") %>%
-  ## service system with a capacity of 3 and a single queue
   add_resource("service_station", 3) %>% 
-  ## customer arrival exponentially distributed with the expection of 90 seconds, until 4h -> run_timesec
-  add_generator("Customer", customer, from_to(0, run_time, function() {rexp(1, rate = 1/90)}))
-
-  # Code for analysis (suppressed)
-
-# service_system %>% run(until = run_time)
-# result <- data.frame(service_system %>%
-#   get_mon_arrivals() %>%
-#   transform(waiting_time = end_time - start_time - activity_time) %>%
-#   transform(actual_service_time = activity_time-25)
-#   )
-# result <- merge(result, get_mon_resources(service_system), by = "time", "start_time")
+  add_generator("Customer", customer, from_to(0, run_time, function() {rexp(1, rate = exp_interarrival_time)}))
 ```
 
 ```{r include=FALSE}
@@ -520,7 +402,7 @@ service_system %>% run(until = run_time)
 result <- data.frame(service_system %>%
   get_mon_arrivals() %>%
   transform(waiting_time = end_time - start_time - activity_time) %>%
-  transform(actual_service_time = activity_time-25)
+  transform(actual_service_time = activity_time-timeout)
   )
 result <- merge(result, get_mon_resources(service_system), by = "time", "start_time")
 
@@ -572,46 +454,31 @@ service_system <- simmer()
 
 customer <- trajectory("serve customer") %>%
   log_("customer arrival") %>%
-  # walk to the queue takes 25 seconds before entering it
   log_("Customer walks to the queue") %>%
-  timeout(function() {25}) %>%
+  timeout(function() {timeout}) %>%
   log_("customer arrival at the queue") %>%
-  ## setting the start time 
   set_attribute("start_time", function() {now(service_system)}) %>%
   seize("service_station") %>%
   log_(function() {paste("Waited: ", now(service_system) - get_attribute(service_system, "start_time"))}) %>%
   log_("customer arrival service station") %>%
-  ## timeout is the service time which is uniformly distributed between 220 and 300
-  timeout(function() {runif(1, min=220, max=300)}) %>%
+  timeout(function() {runif(1, min=service_time_lwr, max=service_time_upr)}) %>%
   release("service_station") %>%
   log_("customer served")%>%
   log_(function() {paste("Finished: ", now(service_system))})
   
 service_system <-
   simmer("service_system") %>%
-  ## service system with a capacity of 3 and a single queue
   add_resource("service_station", 3) %>%
-  ## customer arrival every 90 seconds until 4h -> run_timesec
   add_generator("Customer", customer, from_to(0, run_time, function() {90}))
-
-  # Code for analysis (suppressed)
-
-# service_system %>% run(until = run_time)
-# result <- data.frame(service_system %>%
-#   get_mon_arrivals() %>%
-#   transform(waiting_time = end_time - start_time - activity_time) %>%
-#   transform(actual_service_time = activity_time-25)
-#   )
-# result <- merge(result, get_mon_resources(service_system), by = "time", "start_time")
 ```
 
-```{r include=FALSE}
+```{r message=FALSE, warning=FALSE, include=TRUE, echo=T, results='hide'}
 service_system %>% run(until = run_time)
 result <- data.frame(service_system %>%
   get_mon_arrivals() %>%
   transform(waiting_time = end_time - start_time - activity_time) %>%
-  transform(actual_service_time = activity_time-25)%>%
-  transform(time = start_time + 25)
+  transform(actual_service_time = activity_time-timeout)%>%
+  transform(time = start_time + timeout)
   )
 result <- merge(result, get_mon_resources(service_system), by = "time", "time")
 
@@ -659,48 +526,19 @@ Short description:
 ```{r}
 service_system <- simmer()
 
-customer <- trajectory("serve customer") %>%
-  log_("customer arrival") %>%
-  # walk to the queue takes 25 seconds before entering it
-  log_("Customer walks to the queue") %>%
-  timeout(function() {25}) %>%
-  log_("customer arrival at the queue") %>%
-  ## setting the start time 
-  set_attribute("start_time", function() {now(service_system)}) %>%
-  seize("service_station") %>%
-  log_(function() {paste("Waited: ", now(service_system) - get_attribute(service_system, "start_time"))}) %>%
-  log_("customer arrival service station") %>%
-  ## timeout is the service time which is uniformly distributed between 220 and 300
-  timeout(function() {runif(1, min=220, max=300)}) %>%
-  release("service_station") %>%
-  log_("customer served")%>%
-  log_(function() {paste("Finished: ", now(service_system))})
-  
 service_system <-
   simmer("service_system") %>%
-  ## service system with a capacity of 3 and a single queue
   add_resource("service_station", 3) %>%
-  ## customer arrival in times uniformly distributed between 60 and 120 seconds until 4h -> run_timesec
-  add_generator("Customer", customer, from_to(0, run_time, function() {runif(1, min = 60, max = 120)}))
-
-  # Code for analysis (suppressed)
-
-# service_system %>% run(until = run_time)
-# result <- data.frame(service_system %>%
-#   get_mon_arrivals() %>%
-#   transform(waiting_time = end_time - start_time - activity_time) %>%
-#   transform(actual_service_time = activity_time-25)
-#   )
-# result <- merge(result, get_mon_resources(service_system), by = "time", "start_time")
+  add_generator("Customer", customer, from_to(0, run_time, function() {runif(1, min = unif_interarrval_time_lwr, max = unif_interarrval_time_upr)}))
 ```
 
-```{r include=FALSE}
+```{r message=FALSE, warning=FALSE, include=TRUE, echo=T, results='hide'}
 service_system %>% run(until = run_time)
 result <- data.frame(service_system %>%
   get_mon_arrivals() %>%
   transform(waiting_time = end_time - start_time - activity_time) %>%
-  transform(actual_service_time = activity_time-25)%>%
-  transform(time = start_time + 25)
+  transform(actual_service_time = activity_time-timeout)%>%
+  transform(time = start_time + timeout)
   )
 result <- merge(result, get_mon_resources(service_system), by = "time", "time")
 
@@ -745,49 +583,21 @@ Short description:
 
 ```{r}
 service_system <- simmer()
-
-customer <- trajectory("serve customer") %>%
-  log_("customer arrival") %>%
-  # walk to the queue takes 25 seconds before entering it
-  log_("Customer walks to the queue") %>%
-  timeout(function() {25}) %>%
-  log_("customer arrival at the queue") %>%
-  ## setting the start time 
-  set_attribute("start_time", function() {now(service_system)}) %>%
-  seize("service_station") %>%
-  log_(function() {paste("Waited: ", now(service_system) - get_attribute(service_system, "start_time"))}) %>%
-  log_("customer arrival service station") %>%
-  ## timeout is the service time which is uniformly distributed between 220 and 300
-  timeout(function() {runif(1, min=220, max=300)}) %>%
-  release("service_station") %>%
-  log_("customer served")%>%
-  log_(function() {paste("Finished: ", now(service_system))})
   
 service_system <-
   simmer("service_system") %>%
-  ## service system with a capacity of 3 and a single queue
   add_resource("service_station", 3) %>%
-  ## customer arrival exponentially distributed with the expection of 90 seconds, until 4h -> run_timesec
   add_generator("Customer", customer, from_to(0, run_time, function() {rexp(1, rate = 1/90)}))
 
-  # Code for analysis (suppressed)
-
-# service_system %>% run(until = run_time)
-# result <- data.frame(service_system %>%
-#   get_mon_arrivals() %>%
-#   transform(waiting_time = end_time - start_time - activity_time) %>%
-#   transform(actual_service_time = activity_time-25)
-#   )
-# result <- merge(result, get_mon_resources(service_system), by = "time", "start_time")
 ```
 
-```{r include=FALSE}
+```{r message=FALSE, warning=FALSE, include=TRUE, echo=T, results='hide'}
 service_system %>% run(until = run_time)
 result <- data.frame(service_system %>%
   get_mon_arrivals() %>%
   transform(waiting_time = end_time - start_time - activity_time) %>%
-  transform(actual_service_time = activity_time-25)%>%
-  transform(time = start_time + 25)
+  transform(actual_service_time = activity_time-timeout)%>%
+  transform(time = start_time + timeout)
   )
 result <- merge(result, get_mon_resources(service_system), by = "time", "time")
 
