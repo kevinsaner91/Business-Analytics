@@ -135,11 +135,14 @@ service_system <-
 
 ```{r message=FALSE, warning=FALSE, include=TRUE, echo=T, results='hide'}
 service_system %>% run(until = run_time)
+
 result <- data.frame(service_system %>%
   get_mon_arrivals() %>%
   transform(waiting_time = end_time - start_time - activity_time) %>%
   transform(actual_service_time = activity_time-timeout)
   )
+
+
 merged_results <- merge(result,get_mon_resources(service_system), by = "time", "start_time")
 filtered_1 <- filter(merged_results,resource == "service_station_1")
 filtered_2 <- filter(merged_results,resource == "service_station_2")
@@ -195,6 +198,9 @@ service_system <-
 
 ```{r message=FALSE, warning=FALSE, include=TRUE, echo=T, results='hide'}
 service_system %>% run(until = run_time)
+```
+
+```{r include=FALSE}
 result <- data.frame(service_system %>%
   get_mon_arrivals() %>%
   transform(waiting_time = end_time - start_time - activity_time) %>%
@@ -208,9 +214,6 @@ filtered_3 <- filter(merged_results,resource == "service_station_3")
 
 arrivals_b1 <- get_mon_arrivals(service_system)
 resources_b1 <- get_mon_arrivals(service_system)
-```
-
-```{r include=FALSE}
 results_b1 <- c(length(result$finished==TRUE)/4/3)
 customers_served <- length(result$finished==TRUE)/4/3
 results_b1 <- c(results_b1,sum(filtered_1$actual_service_time)/(run_time),
@@ -245,6 +248,9 @@ service_system <-
 ```{r message=FALSE, warning=FALSE, include=TRUE, echo=T, results='hide'}
 
 service_system %>% run(until = run_time)
+```
+
+```{r include=FALSE}
 result <- data.frame(service_system %>%
   get_mon_arrivals() %>%
   transform(waiting_time = end_time - start_time - activity_time) %>%
@@ -257,9 +263,6 @@ filtered_3 <- filter(merged_results,resource == "service_station_3")
 
 arrivals_c1 <- get_mon_arrivals(service_system)
 resources_c1 <- get_mon_arrivals(service_system)
-```
-
-```{r include=FALSE}
 results_c1 <- c(length(result$finished==TRUE)/4/3)
 customers_served <- length(result$finished==TRUE)/4/3
 
@@ -310,6 +313,9 @@ service_system <-
 
 ```{r message=FALSE, warning=FALSE, include=TRUE, echo=T, results='hide'}
 service_system %>% run(until = run_time)
+```
+
+```{r include=FALSE}
 result <- data.frame(service_system %>%
   get_mon_arrivals() %>%
   transform(waiting_time = end_time - start_time - activity_time) %>%
@@ -319,9 +325,6 @@ result <- merge(result, get_mon_resources(service_system), by = "time", "start_t
 
 arrivals_a2a <- get_mon_arrivals(service_system)
 resources_a2a <- get_mon_arrivals(service_system)
-```
-
-```{r include=FALSE}
 results_a2a <- c(length(result$finished==TRUE)/4/3)
 customers_served <- length(result$finished==TRUE)/4/3
 
@@ -353,6 +356,9 @@ service_system <-
 
 ```{r message=FALSE, warning=FALSE, include=TRUE, echo=T, results='hide'}
 service_system %>% run(until = run_time)
+```
+
+```{r include=FALSE}
 result <- data.frame(service_system %>%
   get_mon_arrivals() %>%
   transform(waiting_time = end_time - start_time - activity_time) %>%
@@ -362,9 +368,6 @@ result <- merge(result, get_mon_resources(service_system), by = "time", "start_t
 
 arrivals_b2a <- get_mon_arrivals(service_system)
 resources_b2a <- get_mon_arrivals(service_system)
-```
-
-```{r include=FALSE}
 results_b2a <- c(length(result$finished==TRUE)/4/3)
 customers_served <- length(result$finished==TRUE)/4/3
 
@@ -399,6 +402,10 @@ service_system <-
 
 ```{r include=FALSE}
 service_system %>% run(until = run_time)
+```
+
+
+```{r include=FALSE}
 result <- data.frame(service_system %>%
   get_mon_arrivals() %>%
   transform(waiting_time = end_time - start_time - activity_time) %>%
@@ -408,31 +415,14 @@ result <- merge(result, get_mon_resources(service_system), by = "time", "start_t
 
 arrivals_c2a <- get_mon_arrivals(service_system)
 resources_c2a <- get_mon_arrivals(service_system)
-```
-
-Calculation of the averaged customers served per hour:
-```{r}
 results_c2a <- c(length(result$finished==TRUE)/4/3)
 customers_served <- length(result$finished==TRUE)/4/3
-#customers_served
-```
-
-Calculation of the occupation of the service stations: (3 times the same value to meet the data frame length for later joins)
-```{r}
 results_c2a <- c(results_c2a,sum(result$actual_service_time)/(run_time*3),
                   sum(result$actual_service_time)/(run_time*3),
                   sum(result$actual_service_time)/(run_time*3))
-```
-
-Calculation of the queue means:(3 times the same value to meet the data frame length for later joins)
-```{r}
 results_c2a <- c(results_c2a, mean(result$queue),
                   mean(result$queue),
                   mean(result$queue))
-```
-
-Calculation of the throughput time:
-```{r}
 results_c2a <- c(results_c2a,mean(result$activity_time+result$waiting_time))
 ```
 
@@ -474,6 +464,10 @@ service_system <-
 
 ```{r message=FALSE, warning=FALSE, include=TRUE, echo=T, results='hide'}
 service_system %>% run(until = run_time)
+```
+
+
+```{r include=FALSE}
 result <- data.frame(service_system %>%
   get_mon_arrivals() %>%
   transform(waiting_time = end_time - start_time - activity_time) %>%
@@ -484,32 +478,14 @@ result <- merge(result, get_mon_resources(service_system), by = "time", "time")
 
 arrivals_a2b <- get_mon_arrivals(service_system)
 resources_a2b <- get_mon_arrivals(service_system)
-```
-
-Calculation of the averaged customers served per hour:
-```{r}
 results_a2b <- c(length(result$finished==TRUE)/4/3)
 customers_served <- length(result$finished==TRUE)/4/3
-#customers_served
-```
-
-Calculation of the occupation of the service stations: (3 times the same value to meet the data frame length for later joins)
-```{r}
 results_a2b <- c(results_a2b,sum(result$actual_service_time)/(run_time*3),
                   sum(result$actual_service_time)/(run_time*3),
                   sum(result$actual_service_time)/(run_time*3))
-```
-
-Calculation of the queue means:(3 times the same value to meet the data frame length for later joins)
-```{r}
 results_a2b <- c(results_a2b, mean(result$queue),
                   mean(result$queue),
                   mean(result$queue))
-```
-
-
-Calculation of the throughput time:
-```{r}
 results_a2b <- c(results_a2b,mean(result$activity_time+result$waiting_time))
 ```
 
@@ -534,6 +510,10 @@ service_system <-
 
 ```{r message=FALSE, warning=FALSE, include=TRUE, echo=T, results='hide'}
 service_system %>% run(until = run_time)
+```
+
+
+```{r include=FALSE}
 result <- data.frame(service_system %>%
   get_mon_arrivals() %>%
   transform(waiting_time = end_time - start_time - activity_time) %>%
@@ -544,31 +524,15 @@ result <- merge(result, get_mon_resources(service_system), by = "time", "time")
 
 arrivals_b2b <- get_mon_arrivals(service_system)
 resources_b2b <- get_mon_arrivals(service_system)
-```
-
-Calculation of the averaged customers served per hour:
-```{r}
 results_b2b <- c(length(result$finished==TRUE)/4/3)
 customers_served <- length(result$finished==TRUE)/4/3
-#customers_served
-```
 
-Calculation of the occupation of the service stations: (3 times the same value to meet the data frame length for later joins)
-```{r}
 results_b2b <- c(results_b2b,sum(result$actual_service_time)/(run_time*3),
                   sum(result$actual_service_time)/(run_time*3),
                   sum(result$actual_service_time)/(run_time*3))
-```
-
-Calculation of the queue means:(3 times the same value to meet the data frame length for later joins)
-```{r}
 results_b2b <- c(results_b2b, mean(result$queue),
                   mean(result$queue),
                   mean(result$queue))
-```
-
-Calculation of the throughput time:
-```{r}
 results_b2b <- c(results_b2b,mean(result$activity_time+result$waiting_time))
 ```
 
@@ -593,6 +557,9 @@ service_system <-
 
 ```{r message=FALSE, warning=FALSE, include=TRUE, echo=T, results='hide'}
 service_system %>% run(until = run_time)
+```
+
+```{r include=FALSE}
 result <- data.frame(service_system %>%
   get_mon_arrivals() %>%
   transform(waiting_time = end_time - start_time - activity_time) %>%
@@ -603,31 +570,14 @@ result <- merge(result, get_mon_resources(service_system), by = "time", "time")
 
 arrivals_c2b <- get_mon_arrivals(service_system)
 resources_c2b <- get_mon_arrivals(service_system)
-```
-
-Calculation of the averaged customers served per hour:
-```{r}
 results_c2b <- c(length(result$finished==TRUE)/4/3)
 customers_served <- length(result$finished==TRUE)/4/3
-#customers_served
-```
-
-Calculation of the occupation of the service stations: (3 times the same value to meet the data frame length for later joins)
-```{r}
 results_c2b <- c(results_c2b,sum(result$actual_service_time)/(run_time*3),
                   sum(result$actual_service_time)/(run_time*3),
                   sum(result$actual_service_time)/(run_time*3))
-```
-
-Calculation of the queue means:(3 times the same value to meet the data frame length for later joins) 
-```{r}
 results_c2b <- c(results_c2b, mean(result$queue),
                   mean(result$queue),
                   mean(result$queue))
-```
-
-Calculation of the throughput time:
-```{r}
 results_c2b <- c(results_c2b,mean(result$activity_time+result$waiting_time))
 ```
 
