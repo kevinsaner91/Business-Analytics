@@ -32,8 +32,9 @@ c) with exponentially distributed interarrival times with expected value 120 sec
 
 *Please provide a written report of your results. You should describe the main modeling concepts as well (e.g., design of the system and used elements) including code and problems observed during modeling and simulation runs (if there were any).*
 
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
 # Preliminaries
-```{r message=FALSE, warning=FALSE}
 rm(list = ls()) 
 set.seed(3)
 library(simmer)
@@ -63,7 +64,7 @@ service_time_upr=400
 
 ## Main Modeling Concepts
 
-In this section, we will go over the main concepts of simulation modeling in a nutshell. The following values were used to spawn the customers during simulation to represent the circumstances of the interarrival times of a, b, and c:
+In this section, we will go over the main concepts of simulation modeling. All given values, like interarrival time or timeout are defined as global variables. The following lines of code were used to spawn the customers during simulation to represent the circumstances of the interarrival times of a, b, and c:
   
 a) For fixed interarrival times of 120 seconds:
   ```add_generator("Customer", customer, from_to(0, run_time, function() {fix_interarrival_time}))``
@@ -74,26 +75,33 @@ b) For interarrival times uniformly distributed between 60 and 120 seconds:
 c) For exponentially distributed interarrival times with an expected value of 120 seconds:
   - ```add_generator("Customer", customer, from_to(0, run_time, function() {rexp(1, rate = exp_interarrival_time)}))```
 
-If customers must travel to the service station and cover a distance of 10 meters at 0.5 m/s, a timeout of 20 seconds is added at the corresponding position: ```timeout(function() {timeout})```. 
+Customers must travel to the service station and cover a distance of 10 meters at 0.5 m/s, therefore a timeout of 20 seconds is added at the corresponding position: ```timeout(function() {timeout})```. 
 
-The service's time is implemented as a uniformly distributed timeout between 300 and 400 seconds: ```timeout(function() {runif(1, min=service_time_lwr, max=service_time_upr)}) %>%```.  
+The service's time is implemented as a uniformly distributed timeout between 300 and 400 seconds: ```timeout(function() {runif(1, min=service_time_lwr, max=service_time_upr)})```.  
 
 The difference in the implementation between the cases in 1 and the cases 2A and 2B consists of 3 real resources with an own queue each in 1:
+
+Case 1 (Round Robin) is modelled as follows with 3 real resources with an own queue.
 ``` 
 add_resource("service_station_1", 1) %>% 
 add_resource("service_station_2", 1) %>% 
-add_resource("service_station_3", 1) %>% 
+add_resource("service_station_3", 1) 
 ```
-and the change of the capacity for the cases 2A and 2B to meet the requirement of one common queue for all service stations:
+Cases 2A and 2B are modelled with a common resource but increased capacity of 3.
 ```
-add_resource("service_station", 3) %>% 
+add_resource("service_station", 3)
 ```
-I dont get this
-*As consequence of this approach, the results of all cases of 2A and 2B covering the different service stations are divided through 3. This is the case because it is not possible to simulate this situation differently with simmer because adding resources adds a queue automatically which would then violate the requirements of the scenario. Can be seen [here](https://r-simmer.org/reference/add_resource.html). In addition to that the policy of the queues would end up affecting the results in a negative way. So for example all "-available-ending" policies raised errors which can't be handled properly and result in missing customers in the simulation as soon as an error is thrown but not logged. Can be found [here](https://r-simmer.org/reference/select.html).*  
 
-All further modeling aspects are briefly described and illustrated in the simulation of the respective case. In addition to that comments in the code describe the reason of the actions where they are performed.   
+The results obtained are stored in a result matrix, which is presented and discussed in the end. 
 
-\newpage
+```{r eval=FALSE, include=FALSE}
+# I dont get this
+# 
+# *As consequence of this approach, the results of all cases of 2A and 2B covering the different service stations are divided through 3. This is the case because it is not possible to simulate this situation differently with simmer because adding resources adds a queue automatically which would then violate the requirements of the scenario. Can be seen [here](https://r-simmer.org/reference/add_resource.html). In addition to that the policy of the queues would end up affecting the results in a negative way. So for example all "-available-ending" policies raised errors which can't be handled properly and result in missing customers in the simulation as soon as an error is thrown but not logged. Can be found [here](https://r-simmer.org/reference/select.html).*  
+# 
+# All further modeling aspects are briefly described and illustrated in the simulation of the respective case. In addition to that comments in the code describe the reason of the actions where they are performed.   
+```
+
 # Scenario 1
 
 ![Simulation Model for Case 1](./Case1.png)
@@ -112,7 +120,6 @@ Text Description missing
 service_system <- simmer()
 #define the trajectory for Cases A1, B1, C1
 customer <- trajectory("serve customer") %>%
-  log_("customer arrival") %>%
   set_attribute("start_time", function() {now(service_system)}) %>%
   simmer::select(c("service_station_1", "service_station_2","service_station_3"), policy = "round-robin") %>%
   seize_selected() %>%
@@ -153,27 +160,20 @@ arrivals_a1 <- get_mon_arrivals(service_system)
 resources_a1 <- get_mon_arrivals(service_system)
 ```
 
-Calculation of the averaged customers served per hour:
+
 ```{r}
+# Calculation of the averaged customers served per hour:
 results_a1 <- c(length(result$finished==TRUE)/4/3)
 customers_served <- length(result$finished==TRUE)/4/3
-```
-Calculation of the occupation of the service stations:
-```{r}
+# Calculation of the occupation of the service stations:
 results_a1 <- c(results_a1,sum(filtered_1$actual_service_time)/(run_time),
                   sum(filtered_2$actual_service_time)/(run_time),
                   sum(filtered_3$actual_service_time)/(run_time))
-```
-
-Calculation of the queue means:
-```{r}
+# Calculation of the queue means:
 results_a1 <- c(results_a1, mean(filtered_1$queue),
                   mean(filtered_2$queue),
                   mean(filtered_3$queue))
-```
-
-Calculation of the throughput time
-```{r}
+# Calculation of the throughput time
 results_a1 <- c(results_a1,mean(result$activity_time+result$waiting_time))
 ```
 
@@ -282,10 +282,10 @@ results_c1 <- c(results_c1,mean(result$activity_time+result$waiting_time))
 ## CASE A2A
 Short description:  
 
-- Customers arrive with fixed interarrival times of 90 seconds
+- Customers arrive with fixed interarrival times of 120 seconds
 - Common queue before the way to the service station
 - The way to the service station is between the queue and the actual service station. So, the block of the service station is already done as soon as the customer served the queue and gets on the way to the service station
-- The service times are uniformly distributed between 220sec and 300sec
+- The service times are uniformly distributed between 300 and 400 seconds
 
 
 ```{r}
@@ -293,7 +293,6 @@ service_system <- simmer()
 
 customer <-
   trajectory("serve customer") %>%
-  log_("customer arrival") %>%
   set_attribute("start_time", function() {now(service_system)}) %>%
   seize("service_station") %>%
   log_(function() {paste("Waited: ", now(service_system) - get_attribute(service_system, "start_time"))}) %>%
@@ -340,7 +339,7 @@ results_a2a <- c(results_a2a,mean(result$activity_time+result$waiting_time))
 ## CASE B2A
 Short description:  
 
-- Customers arrive with interarrival times which are uniformly distributed between 60 and 120 seconds
+- Customers arrive with interarrival times which are uniformly distributed between 60 and 180 seconds
 - Common queue before the way to the service station
 - The way to the service station is between the queue and the actual service station. So, the block of the service station is already done as soon as the customer served the queue and gets on the way to the service station
 - The service times are uniformly distributed between 300 and 400 seconds
@@ -380,13 +379,10 @@ results_b2a <- c(results_b2a, mean(result$queue),
 results_b2a <- c(results_b2a,mean(result$activity_time+result$waiting_time))
 ```
 
-#Reviewed until here!!!
-
-\newpage
 ## CASE C2A
 Short description:  
 
-- Customers arrive with exponentially distributed interarrival times with expected value 90 sec
+- Customers arrive with exponentially distributed interarrival times with expected value 120 sec
 - Common queue before the way to the service station
 - The way to the service station is between the queue and the actual service station. So, the block of the service station is already done as soon as the customer served the queue and gets on the way to the service station
 - The service times are uniformly distributed between 300 and 400 seconds
@@ -426,7 +422,6 @@ results_c2a <- c(results_c2a, mean(result$queue),
 results_c2a <- c(results_c2a,mean(result$activity_time+result$waiting_time))
 ```
 
-\newpage
 # Scenario 2B
 ![Simulation Model for Case 2b](./Case2b.png)
 
@@ -434,16 +429,15 @@ results_c2a <- c(results_c2a,mean(result$activity_time+result$waiting_time))
 
 Short description:  
 
-- Customers arrive with fixed interarrival times of 90 seconds
+- Customers arrive with fixed interarrival times of 120 seconds
 - The Common queue is located directly in front of the service station. In this case, the assumption is made as shown above that the way now is infront of the queue instead of the service station. The start time is set as soon as the customer arrival the queue.
-- The service times are uniformly distributed between 220sec and 300sec  
+- The service times are uniformly distributed between 300 and 400 seconds 
 
 
 ```{r}
 service_system <- simmer()
 
 customer <- trajectory("serve customer") %>%
-  log_("customer arrival") %>%
   log_("Customer walks to the queue") %>%
   timeout(function() {timeout}) %>%
   log_("customer arrival at the queue") %>%
@@ -459,7 +453,7 @@ customer <- trajectory("serve customer") %>%
 service_system <-
   simmer("service_system") %>%
   add_resource("service_station", 3) %>%
-  add_generator("Customer", customer, from_to(0, run_time, function() {90}))
+  add_generator("Customer", customer, from_to(0, run_time, function() {fix_interarrival_time}))
 ```
 
 ```{r message=FALSE, warning=FALSE, include=TRUE, echo=T, results='hide'}
@@ -489,7 +483,6 @@ results_a2b <- c(results_a2b, mean(result$queue),
 results_a2b <- c(results_a2b,mean(result$activity_time+result$waiting_time))
 ```
 
-\newpage
 ## CASE B2B
 
 Short description:  
@@ -536,14 +529,13 @@ results_b2b <- c(results_b2b, mean(result$queue),
 results_b2b <- c(results_b2b,mean(result$activity_time+result$waiting_time))
 ```
 
-\newpage
 ## CASE C2B
 Short description:  
 
-- Customers arrive with exponentially distributed interarrival times with expected value 90 sec
+- Customers arrive with exponentially distributed interarrival times with expected value 120 sec
 - Common queue before the way to the service station
 - The way to the service station is between the queue and the actual service station. So, the block of the service station is already done as soon as the customer served the queue and gets on the way to the service station
-- The service times are uniformly distributed between 220sec and 300sec  
+- The service times are uniformly distributed between 300 and 400 seconds 
 
 ```{r}
 service_system <- simmer()
@@ -551,7 +543,7 @@ service_system <- simmer()
 service_system <-
   simmer("service_system") %>%
   add_resource("service_station", 3) %>%
-  add_generator("Customer", customer, from_to(0, run_time, function() {rexp(1, rate = 1/90)}))
+  add_generator("Customer", customer, from_to(0, run_time, function() {rexp(1, rate = exp_interarrival_time)}))
 
 ```
 
@@ -585,15 +577,13 @@ results_c2b <- c(results_c2b,mean(result$activity_time+result$waiting_time))
 
 # Result Interpretation and Comparison
 
-```{r, layout="l-body-outset"}
+```{r include=FALSE, layout="l-body-outset"}
 result_matrix <- round_df(data.frame("Values"=result_header, "CASE A1"= results_a1, "CASE B1" = results_b1, "CASE C1" = results_c1, "CASE A2A" = results_a2a, "CASE B2A" = results_b2a, "CASE C2A" = results_c2a, "CASE A2B" = results_a2b, "CASE B2B" = results_b2b, "CASE C2B" = results_c2b),digits = 2)
 
 t_result_matrix <- transpose(result_matrix)
 colnames(t_result_matrix) <- rownames(result_matrix)
 rownames(t_result_matrix) <- colnames(result_matrix)
 ```
-
-\newpage
 
 ## *Overview of all results*
 
