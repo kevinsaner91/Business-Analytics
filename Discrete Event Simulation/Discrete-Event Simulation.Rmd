@@ -1,7 +1,7 @@
 ---
 title: "Assignment in Discrete-Event Simulation"
 author: "Kevin Saner, Philip Gachnang, Raphael Denz"
-date: "12.05.2021"
+date: "16.06.2021"
 output: word_document
 ---
 
@@ -115,9 +115,7 @@ The results obtained are stored in a result matrix, which is presented and discu
 ```
 
 # Scenario 1
-![Simulation Model for Case 1](./images/Picture1.png){width=250px}
-
-Text Description missing
+![Simulation Model for Case 1](./images/Picture1.png){width=350px}
 
 
 ## CASE A1  
@@ -287,7 +285,7 @@ results_c1 <- c(results_c1,mean(result$activity_time+result$waiting_time))
 
 
 # Scenario 2A
-![Simulation Model for Case 2A](./images/Picture2.png){width=250px}
+![Simulation Model for Case 2A](./images/Picture2.png){width=350px}
 
 ## CASE A2A
 Short description:  
@@ -431,7 +429,7 @@ results_c2a <- c(results_c2a,mean(result$activity_time+result$waiting_time))
 ```
 
 # Scenario 2B
-![Simulation Model for Case 2B](./images/Picture3.png){width=250px}
+![Simulation Model for Case 2B](./images/Picture3.png){width=350px}
 
 ## CASE A2B
 
@@ -580,7 +578,7 @@ results_c2b <- c(results_c2b, mean(result$queue),
 results_c2b <- c(results_c2b,mean(result$activity_time+result$waiting_time))
 ```
 
-
+\newpage
 
 # Result Interpretation and Comparison
 
@@ -614,14 +612,15 @@ Considering that simmer simulates a service system with one queue for three serv
 The degree of utilization at each of the service stations is bellow 100% as in the beginning the first 2 service stations are idle. The third service station gets the first customer on average only after 120s of service. So even if the customer arrival rate is higher than the service rate, the service station with the highest utilization is only at 0.96 % (A2B). Additionally, the service stations are not fully utilized are the 20 seconds walking time where the customer walks from the queue to the service station (1A, 1B, 1C, A2A, B2A, C2A). During this time the service stations are idle as well.
 
 _-What is the average length of the queues?_   
-Considering that simmer simulates a service system with one queue for three service station as a single queue with the capacity of three. Therefore, the individual service station results of X2A and X2B cannot be displayed separately which leads to three identical values in these cases.
+Consider the same as above, how simmer simulates a service system with one queue for multiple service stations.
 
-The average length of the queues is between 0.68 (A2B) and 6.01 (C2A) and differs therefore heavily. The aspect that the simulation is only done for 4 hours has to be considered when looking at these numbers. In the beginning there was at in none of the scenarios a queue since the customers just arrived one after another. As the plots in the following answers show are most queues having a positive slope for the customer throughput. The rising throughput time obviously impacts the queue length. The length of the queue for the simulations would thus rise to infinity if the simulation time of A1/B1/A2A/B2A/C2A be prolonged. C1 and C2B look suspicious but no definite Conclusion can be drawn. Only A2A and B2B seems to look stable.
-   
+The average length of the queues is between 0.68 (A2B) and 6.01 (C2A). The simulation shows heavily different results. This might be reasoned by the simulation duration of only 4 hours. Most of the scenarios are just fine in the beginning and become worse over the simulation time. The plots in the following show for most queues a positive slope for the customer flowtime, the rising flowtime increases the queue length over time - which is the case for simulations A1, B1, A2A, B2A and C2B. As already identified before, also the plots for A2B and B2B show an almost stable system too. The plots for C1 and C2A are special because the plots show an rising and decreasing throughput time, which lead to increasing and decreasing queue length as well. We assume this happens because of the exponential distribution of the customer interarrival times. A final conclusion cannot be drawn based on the 4 hour simulation.
+
 _-What is the average throughput time of the customers?_
-The average throughput time of the customers is between 299.62 seconds (A2B) & 1074.62 seconds (C2A) and differs therefore also heavily. The aspect that the simulation is only done for 4 hours has to be considered when looking at these numbers. As the plots in the paper show most models have as well a positive slope for the throughput time which would therefore also rise to infinity if the simulation time would be prolonged (see example of C2A). In contrast the slope of A2B looks stable.
+The simulations average throughput time lies between 1050.73 seconds for C2A and 401.98 seconds A2B. Again, the results differ because of a simulation based on randomness and time. As previously described, most simulation plots have a positive slope and will rise towards infinity over time for A1, B1, A2A, B2A and C2B. The throughput time for A2B and B2B, as mentioned, represent the most stable systems. 
 
-See example C2A with a positive slope for the flow time and A2B with a stable flow time
+
+The figures below depict A2B as an almost stable system and C2A with a positive slope.
 ```{r message=FALSE, warning=FALSE, echo=FALSE}
 knitr::opts_chunk$set(fig.width=6, fig.height=4)
 ```
@@ -630,18 +629,18 @@ knitr::opts_chunk$set(fig.width=6, fig.height=4)
 plot_c2a <- plot(arrivals_c2a, metric = "flow_time")
 plot_a2b <- plot(arrivals_a2b, metric = "flow_time")
 
-ggarrange(plot_c2a, plot_a2b,
-          labels = c("C2A", "A2B"),
+ggarrange(plot_a2b, plot_c2a,
+          labels = c("A2B", "C2A"),
           ncol = 1, nrow = 2)
 
 ```
 
 ## Conclusion
-If we just consider the average service rate per service station and the average arrival rate of the customers (~ 90 seconds) all systems seem to not be stable. When λ is greater or equal to μ, the queue becomes infinite long. The workload ρ should always  be smaller than 1 which is in none of the scenarios the case. Nevertheless the two best functioning simulations were A2A and B2B which seem to function properly in the simulations done.
+- Considering the service time per service station and assuming the arrival rate of ~30 customers per hour, all systems are not stable. The best system from our simulation can handle at maximum 29.25 customers per hour. 
+- When λ is greater or equal to μ the queue becomes infinite long. 
+- The occupancy ρ should be below 1, which is the case for all of our simulations. Whatsoever, the best two systems are A2B and B2B.
 
 ```{r eval=FALSE, include=FALSE}
-Alle runtime infos in den variablen zur plot koordination:
-
 arrivals_a1
 resources_a1
 arrivals_b1
@@ -662,7 +661,10 @@ arrivals_c2b
 resources_c2b
 ```
 
-In the following are the plots of the flow time of all models:
+\newpage
+# Appendix
+
+In the following are the plots of the flow times of all models.
 
 *CASE 1*
 ```{r message=FALSE, warning=FALSE}
